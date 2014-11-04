@@ -1,0 +1,10 @@
+{
+  "input": ["pcre.h"],
+  "libname": "Pcre",
+  "import": {
+    "constants": {
+      "prefix" : "PCRE_",
+      "remove_prefix" : true
+    }
+  }
+}
