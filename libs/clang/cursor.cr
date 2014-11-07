@@ -26,9 +26,9 @@ struct Clang::Cursor
 
   def visit_children(&block : Cursor -> Clang::VisitResult)
     LibClang.visit_children(@cursor, ->(cursor, parent, data) {
-      proc = Box(Cursor -> Clang::VisitResult).unbox(data)
+      proc = Box(typeof(block)).unbox(data)
       proc.call(Cursor.new(cursor))
-    }, Box(Cursor -> Clang::VisitResult).box(block))
+    }, Box.box(block))
   end
 
   def declaration?
