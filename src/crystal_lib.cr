@@ -41,10 +41,19 @@ class LibSpec
   end
 end
 
+filename = ARGV[0]?
+unless filename
+  puts "usage: crystal_lib lib_spec"
+  exit
+end
 
-lib_spec = LibSpec.from_json(File.read(ARGV[0]))
+unless File.exists?(filename) && !Dir.exists?(filename)
+  puts "File '#{filename}' is not a file or it does not exist"
+  exit
+end
+
+lib_spec = LibSpec.from_json(File.read(filename))
 puts lib_spec
-
 
 input_file_contents = lib_spec.input.map {|hdr| %(#include <#{hdr}>)}.join "\n"
 
@@ -53,8 +62,7 @@ tu = idx.parse_translation_unit "input.c", [] of String, [Clang::UnsavedFile.new
 
 tu.cursor.visit_children do |cursor|
   puts "#{cursor.declaration?} #{cursor.spelling} #{cursor.kind} #{cursor.type.spelling}" #{cursor.type.canonical_type.spelling} #{cursor.type.kind} #{cursor.type.canonical_type.kind}"
-  # puts cursor.location.is_from_main_file?
-  :continue
+  Clang::VisitResult::Continue
 end
 
 

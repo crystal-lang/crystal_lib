@@ -1,4 +1,4 @@
-require "lib_clang_enums"
+require "enums"
 
 @[Link("clang")]
 @[Link(ldflags: "-L`xcode-select --print-path`/Toolchains/XcodeDefault.xctoolchain/usr/lib")]
@@ -18,13 +18,7 @@ lib LibClang
     data : Pointer(Void)[2]
   end
 
-  enum VisitResult
-    Break,
-    Continue,
-    Recurse
-  end
-
-  type CursorVisitor = (Cursor, Cursor, Void*) -> Int32
+  type CursorVisitor = (Cursor, Cursor, Void*) -> Clang::VisitResult
 
   struct UnsavedFile
     filename : UInt8*
@@ -36,6 +30,8 @@ lib LibClang
     ptr_data : Pointer(Void)[2]
     int_data : UInt32
   end
+
+  alias CursorKind = Clang::Cursor::Kind
 
   fun create_index = clang_createIndex(excludeDeclarationsFromPCH : Int32, displayDiagnostics : Int32) : Index
   fun parse_translation_unit = clang_parseTranslationUnit(idx : Index,
@@ -56,7 +52,7 @@ lib LibClang
   fun get_translation_unit_cursor = clang_getTranslationUnitCursor(TranslationUnit) : Cursor
   fun visit_children = clang_visitChildren(Cursor, CursorVisitor, client_data : Void*) : UInt32
   fun get_num_diagnostics = clang_getNumDiagnostics(TranslationUnit) : UInt32
-  fun get_cursor_kind = clang_getCursorKind(Cursor) : Int32
+  fun get_cursor_kind = clang_getCursorKind(Cursor) : CursorKind
   fun get_cursor_type = clang_getCursorType(Cursor) : Type
   fun get_type_spelling = clang_getTypeSpelling(Type) : UInt8*
 

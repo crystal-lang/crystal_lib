@@ -1,6 +1,6 @@
 require "type"
 
-class Clang::Cursor
+struct Clang::Cursor
   def initialize(@cursor)
   end
 
@@ -24,21 +24,11 @@ class Clang::Cursor
     SourceLocation.new(LibClang.get_cursor_location(self))
   end
 
-  def visit_children(&block : Cursor -> Symbol)
+  def visit_children(&block : Cursor -> Clang::VisitResult)
     LibClang.visit_children(@cursor, ->(cursor, parent, data) {
-      proc = Box(Cursor -> Symbol).unbox(data)
-
-      case result = proc.call(Cursor.new(cursor))
-      when :break
-        LibClang::VisitResult::Break
-      when :continue
-        LibClang::VisitResult::Continue
-      when :recurse
-        LibClang::VisitResult::Recurse
-      else
-        raise "Invalid result for visitor: #{result}"
-      end
-    }, Box(Cursor -> Symbol).box(block))
+      proc = Box(Cursor -> Clang::VisitResult).unbox(data)
+      proc.call(Cursor.new(cursor))
+    }, Box(Cursor -> Clang::VisitResult).box(block))
   end
 
   def declaration?
@@ -80,5 +70,4 @@ class Clang::Cursor
   def to_unsafe
     @cursor
   end
-
 end

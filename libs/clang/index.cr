@@ -1,4 +1,4 @@
-class Clang::Index
+struct Clang::Index
   def initialize
     @index = LibClang.create_index(0, 1)
   end

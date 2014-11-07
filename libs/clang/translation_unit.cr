@@ -1,4 +1,4 @@
-class Clang::TranslationUnit
+struct Clang::TranslationUnit
   def initialize(@tu)
   end
 
