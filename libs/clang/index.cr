@@ -5,7 +5,7 @@ struct Clang::Index
 
   def parse_translation_unit(source : String?, args = [] of String, unsaved_files = [] of UnsavedFile)
     tu = LibClang.parse_translation_unit(@index, source, args.map &.cstr, args.length,
-      unsaved_files.map &.to_unsafe, unsaved_files.length.to_u32, 0_u32)
+      unsaved_files.map &.to_unsafe, unsaved_files.length.to_u32, 1_u32)
     TranslationUnit.new tu
   end
 

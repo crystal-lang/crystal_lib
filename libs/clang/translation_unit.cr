@@ -3,10 +3,19 @@ struct Clang::TranslationUnit
   end
 
   def num_diagnostics
-    LibClang.get_num_diagnostics(@tu)
+    LibClang.get_num_diagnostics(self)
   end
 
   def cursor
-    Cursor.new(LibClang.get_translation_unit_cursor(@tu))
+    Cursor.new(LibClang.get_translation_unit_cursor(self))
+  end
+
+  def tokenize(source_range)
+    LibClang.tokenize(self, source_range, out tokens, out num_tokens)
+    Tokenization.new self, Slice.new(tokens, num_tokens.to_i)
+  end
+
+  def to_unsafe
+    @tu
   end
 end

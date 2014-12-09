@@ -1,4 +1,4 @@
-require "type"
+require "./type"
 
 struct Clang::Cursor
   def initialize(@cursor)
@@ -22,6 +22,10 @@ struct Clang::Cursor
 
   def location
     SourceLocation.new(LibClang.get_cursor_location(self))
+  end
+
+  def extent
+    SourceRange.new(LibClang.get_cursor_extent(self))
   end
 
   def visit_children(&block : Cursor -> Clang::VisitResult)

@@ -1,4 +1,4 @@
-require "enums"
+require "./enums"
 
 @[Link("clang")]
 @[Link(ldflags: "-L`xcode-select --print-path`/Toolchains/XcodeDefault.xctoolchain/usr/lib")]
@@ -6,6 +6,7 @@ require "enums"
 lib LibClang
   type Index = Void*
   type TranslationUnit = Void*
+  type File = Void*
 
   struct Cursor
     kind : Int32
@@ -29,6 +30,17 @@ lib LibClang
   struct SourceLocation
     ptr_data : Pointer(Void)[2]
     int_data : UInt32
+  end
+
+  struct SourceRange
+    ptr_data : Pointer(Void)[2]
+    begin_int_data : UInt32
+    end_int_data : UInt32
+  end
+
+  struct Token
+    int_data : UInt32[4]
+    ptr_data : Void*
   end
 
   alias CursorKind = Clang::Cursor::Kind
@@ -71,10 +83,20 @@ lib LibClang
   fun get_cursor_display_name = clang_getCursorDisplayName(Cursor) : UInt8*
   fun get_cursor_location = clang_getCursorLocation(Cursor) : SourceLocation
   fun location_is_from_main_file = clang_Location_isFromMainFile(SourceLocation) : Int32
-  # fun get_expansion_location = clang_getExpansionLocation(SourceLocation location,
-  #                                              CXFile *file,
-  #                                              unsigned *line,
-  #                                              unsigned *column,
-  #                                              unsigned *offset);
+  fun get_cursor_extent = clang_getCursorExtent(Cursor) : SourceRange
+
+  fun get_range_start = clang_getRangeStart(SourceRange) : SourceLocation
+  fun get_range_end = clang_getRangeEnd(SourceRange) : SourceLocation
+
+  fun get_file_location = clang_getFileLocation(location : SourceLocation,
+                                          file : File*,
+                                          line : UInt32*,
+                                          column : UInt32*,
+                                          offset : UInt32*)
+  fun get_file_name = clang_getFileName(file : File) : UInt8*
+
+  fun tokenize = clang_tokenize(TranslationUnit, SourceRange, Token**, UInt32*)
+  fun get_token_kind = clang_getTokenKind(Token) : Clang::Token::Kind
+  fun get_token_spelling = clang_getTokenSpelling(TranslationUnit, Token) : UInt8*
 
 end

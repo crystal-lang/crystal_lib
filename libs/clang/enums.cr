@@ -255,4 +255,14 @@ module Clang
       MemberPointer = 117
     end
   end
+
+  struct Token
+    enum Kind
+      Punctuation
+      Keyword
+      Identifier
+      Literal
+      Comment
+    end
+  end
 end
