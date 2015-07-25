@@ -5,7 +5,7 @@ abstract class LibElementSpec
 end
 
 class ConstantsSpec < LibElementSpec
-  def initialize(json : Json::PullParser)
+  def initialize(json : JSON::PullParser)
     @remove_prefix = false
     prefix = nil
 
@@ -55,7 +55,7 @@ class LibSpec
   property libname
   property! imports
 
-  def initialize(json : Json::PullParser)
+  def initialize(json : JSON::PullParser)
     json.read_object do |key|
       case key
       when "input"
