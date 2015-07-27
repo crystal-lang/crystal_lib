@@ -105,5 +105,6 @@ lib LibClang
   fun get_argument = clang_Cursor_getArgument(Cursor, UInt32) : Cursor
   fun get_num_arg_types = clang_getNumArgTypes(Type) : Int32
   fun get_arg_type = clang_getArgType(Type, i : UInt32) : Type
+  fun get_result_type = clang_getResultType(Type) : Type
   fun get_enum_constant_decl_value = clang_getEnumConstantDeclValue(Cursor) : Int64
 end
