@@ -12,6 +12,22 @@ struct Clang::Cursor
     Type.new(LibClang.get_cursor_type(self))
   end
 
+  def typedef_underlying_type
+    Type.new(LibClang.get_typedef_decl_underlying_type(self))
+  end
+
+  def result_type
+    Type.new(LibClang.get_cursor_result_type(self))
+  end
+
+  def enum_integer_type
+    Type.new(LibClang.get_enum_decl_integer_type(self))
+  end
+
+  def enum_value
+    LibClang.get_enum_constant_decl_value(self)
+  end
+
   def display_name
     String.new(LibClang.get_cursor_display_name(self))
   end
@@ -69,6 +85,10 @@ struct Clang::Cursor
 
   def unexposed?
     LibClang.is_unexposed(kind) != 0
+  end
+
+  def hash
+    LibClang.hash_cursor(self)
   end
 
   def to_unsafe

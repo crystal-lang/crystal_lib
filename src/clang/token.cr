@@ -13,4 +13,8 @@ struct Clang::Token
   def spelling
     String.new LibClang.get_token_spelling(@tokenization.translation_unit, self)
   end
+
+  def location
+    SourceLocation.new LibClang.get_token_location(@tokenization.translation_unit, self)
+  end
 end

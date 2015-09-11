@@ -9,13 +9,13 @@ lib LibClang
   type File = Void*
 
   struct Cursor
-    kind : Int32
+    kind : Clang::Cursor::Kind
     xdata : Int32
     data : Pointer(Void)[3]
   end
 
   struct Type
-    kind : Int32
+    kind : Clang::Type::Kind
     data : Pointer(Void)[2]
   end
 
@@ -82,6 +82,7 @@ lib LibClang
   fun get_cursor_spelling = clang_getCursorSpelling(Cursor) : UInt8*
   fun get_cursor_display_name = clang_getCursorDisplayName(Cursor) : UInt8*
   fun get_cursor_location = clang_getCursorLocation(Cursor) : SourceLocation
+  fun get_cursor_result_type = clang_getCursorResultType(Cursor) : Type
   fun location_is_from_main_file = clang_Location_isFromMainFile(SourceLocation) : Int32
   fun get_cursor_extent = clang_getCursorExtent(Cursor) : SourceRange
 
@@ -98,5 +99,11 @@ lib LibClang
   fun tokenize = clang_tokenize(TranslationUnit, SourceRange, Token**, UInt32*)
   fun get_token_kind = clang_getTokenKind(Token) : Clang::Token::Kind
   fun get_token_spelling = clang_getTokenSpelling(TranslationUnit, Token) : UInt8*
-
+  fun get_typedef_decl_underlying_type = clang_getTypedefDeclUnderlyingType(Cursor) : Type
+  fun get_enum_decl_integer_type = clang_getEnumDeclIntegerType(Cursor) : Type
+  fun get_enum_constant_decl_value = clang_getEnumConstantDeclValue(Cursor) : Int64
+  fun get_pointee_type = clang_getPointeeType(Type) : Type
+  fun get_token_location = clang_getTokenLocation(TranslationUnit, Token) : SourceLocation
+  fun get_type_declaration = clang_getTypeDeclaration(Type) : Cursor
+  fun hash_cursor = clang_hashCursor(Cursor) : UInt32
 end

@@ -8,11 +8,8 @@ struct Clang::SourceLocation
 
   def file_location
     LibClang.get_file_location(self, out file, out line, out column, out offset)
-    if file
-      {String.new(LibClang.get_file_name(file)), line, column, offset}
-    else
-      {nil, line, column, offset}
-    end
+    filename = file ? String.new(LibClang.get_file_name(file)) : nil
+    FileLocation.new filename, line, column, offset
   end
 
   def to_unsafe

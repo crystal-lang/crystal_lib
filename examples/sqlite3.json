@@ -1,0 +1,10 @@
+{
+  "input": ["sqlite3.h"],
+  "libname": "LibSQLite3",
+  "import": {
+    "constants": {
+      "prefix" : "SQLITE_",
+      "remove_prefix" : true
+    }
+  }
+}
