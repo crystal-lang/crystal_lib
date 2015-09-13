@@ -9,6 +9,8 @@ node = Crystal::Parser.parse %(
     INFO_CAPTURECOUNT = PCRE_INFO_CAPTURECOUNT
     INFO_NAMEENTRYSIZE = PCRE_INFO_NAMEENTRYSIZE
     fun compile = pcre_compile
+    $pcre_malloc : Void
+    $pcre_free : Void
   end
   )
 

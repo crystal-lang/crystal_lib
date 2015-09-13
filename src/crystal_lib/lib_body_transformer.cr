@@ -8,8 +8,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   end
 
   def transform(node : Crystal::FunDef)
-    func = find_function node.real_name
-    raise "can't find function #{node.real_name}" unless func
+    func = find_node node.real_name
+    raise "can't find function #{node.real_name}" unless func.is_a?(CrystalLib::Function)
 
     node.args = func.args.map_with_index do |arg, i|
       arg_type = map_type(arg.type)
@@ -31,6 +31,16 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       raise "Unexpected type for constant: #{node}, #{match}, #{match.class}"
     end
     node
+  end
+
+  def transform(node : Crystal::ExternalVar)
+    name = node.real_name || node.name
+
+    match = find_node(name)
+    raise "can't find variable #{name}" unless match.is_a?(CrystalLib::Var)
+
+    node.type_spec = map_type(match.type)
+    check_pending_definitions(node)
   end
 
   def map_type(type)
@@ -142,11 +152,6 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
       Crystal::Expressions.new(nodes)
     end
-  end
-
-  def find_function(name)
-    match = find_node(name)
-    match.is_a?(Function) ? match : nil
   end
 
   def find_node(name)

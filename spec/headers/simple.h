@@ -21,3 +21,6 @@ void constant_array(int x[2]);
 const int just_const_int();
 
 void variadic(int x, ...);
+
+int some_int;
+fun_ptr some_fun_ptr;

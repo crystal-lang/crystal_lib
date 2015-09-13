@@ -73,4 +73,12 @@ describe LibBodyTransformer do
   assert_transform "simple", "fun constant_array", "fun constant_array(x : LibC::Int[2]) : Void"
 
   assert_transform "simple", "fun variadic", "fun variadic(x : LibC::Int, ...) : Void"
+
+  assert_transform "simple", "$some_int : Void", "$some_int : LibC::Int"
+  assert_transform "simple",
+    "$some_fun_ptr : Void", %(
+    type FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    $some_fun_ptr : FunPtr
+  )
+  assert_transform "simple", "$var = some_int : Void", "$var = some_int : LibC::Int"
 end
