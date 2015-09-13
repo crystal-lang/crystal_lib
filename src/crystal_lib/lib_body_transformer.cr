@@ -4,6 +4,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def initialize(nodes : Array(CrystalLib::ASTNode))
     @nodes = nodes.index_by &.name
     @pending_definitions = [] of Crystal::ASTNode
+    @generated = {} of typeof(object_id) => Crystal::ASTNode
   end
 
   def transform(node : Crystal::FunDef)
@@ -31,7 +32,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     node
   end
 
-  def map_type(type : PrimitiveType)
+  def map_type(type)
+    @generated[type.object_id] ||= map_type_internal(type)
+  end
+
+  def map_type_internal(type : PrimitiveType)
     case type.kind
     when PrimitiveType::Kind::Char_S
       path ["LibC", "Char"]
@@ -44,7 +49,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     end
   end
 
-  def map_type(type : PointerType)
+  def map_type_internal(type : PointerType)
     pointee_type = type.type
 
     # Check the case of a pointer to an opaque struct
@@ -57,11 +62,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     pointer_type(map_type(type.type))
   end
 
-  def map_type(type : TypedefType)
+  def map_type_internal(type : TypedefType)
     map_type(type.type)
   end
 
-  def map_type(type)
+  def map_type_internal(type)
     raise "Unsupported: #{type}, #{type.class}"
   end
 
@@ -94,6 +99,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       nodes = typeof(@pending_definitions).new
       nodes.concat @pending_definitions
       nodes << node
+
+      @pending_definitions.clear
 
       Crystal::Expressions.new(nodes)
     end

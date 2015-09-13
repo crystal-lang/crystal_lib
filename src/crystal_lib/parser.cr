@@ -198,20 +198,20 @@ class CrystalLib::Parser
   end
 
   def pointer_types
-    @pointer_types ||= {} of Type => Type
+    @pointer_types ||= {} of typeof(object_id) => Type
   end
 
   def named_types
     @named_types ||= {} of String => Type
   end
 
-  record ConstantArrayKey, type, size
+  record ConstantArrayKey, object_id, size
 
   def constant_array_types
     @constant_array_types ||= {} of ConstantArrayKey => Type
   end
 
-  record FunctionKey, inputs, output
+  record FunctionKey, inputs_ids, output_id
 
   def function_types
     @function_types ||= {} of FunctionKey => Type
@@ -222,14 +222,14 @@ class CrystalLib::Parser
   end
 
   def pointer_type(type)
-    pointer_types[type] ||= PointerType.new(type)
+    pointer_types[type.object_id] ||= PointerType.new(type)
   end
 
   def constant_array_type(type, size)
-    constant_array_types[ConstantArrayKey.new(type, size)] ||= ConstantArrayType.new(type, size)
+    constant_array_types[ConstantArrayKey.new(type.object_id, size)] ||= ConstantArrayType.new(type, size)
   end
 
   def function_type(inputs, output)
-    function_types[FunctionKey.new(inputs, output)] ||= FunctionType.new(inputs, output)
+    function_types[FunctionKey.new(inputs.map(&.object_id), output.object_id)] ||= FunctionType.new(inputs, output)
   end
 end

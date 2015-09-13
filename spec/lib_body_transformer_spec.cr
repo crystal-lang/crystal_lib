@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-private def assert_transform(header, input, output)
-  it "transforms #{input.inspect} in #{header.inspect}" do
+private def assert_transform(header, input, output, file = __FILE__, line = __LINE__)
+  it "transforms #{input.inspect} in #{header.inspect}", file: file, line: line do
     nodes = parse(File.read("#{__DIR__}/headers/#{header}.h"))
     transformer = LibBodyTransformer.new(nodes)
 
@@ -30,6 +30,19 @@ describe LibBodyTransformer do
     %(
     alias Pcre = Void*
     fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
+    )
+  )
+
+  # Check that it only declares the Pcre alias once
+  assert_transform("pcre",
+    %(
+    fun compile = pcre_compile
+    fun get_stringnumber = pcre_get_stringnumber
+    ),
+    %(
+    alias Pcre = Void*
+    fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
+    fun get_stringnumber = pcre_get_stringnumber(x0 : Pcre, x1 : LibC::Char*) : LibC::Int
     )
   )
 end
