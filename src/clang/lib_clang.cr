@@ -110,5 +110,6 @@ lib LibClang
   fun get_type_declaration = clang_getTypeDeclaration(Type) : Cursor
   fun get_num_arg_types = clang_getNumArgTypes(Type) : Int32
   fun get_arg_type = clang_getArgType(Type, UInt32) : Type
+  fun cursor_is_variadic = clang_Cursor_isVariadic(Cursor) : UInt32
   fun hash_cursor = clang_hashCursor(Cursor) : UInt32
 end

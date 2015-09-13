@@ -104,9 +104,11 @@ class CrystalLib::Parser
   end
 
   def visit_function_declaration(cursor)
+    variadic = cursor.variadic?
+
     name = name(cursor)
     return_type = type(cursor.result_type)
-    function = Function.new(name, return_type)
+    function = Function.new(name, return_type, variadic)
 
     cursor.visit_children do |subcursor|
       if subcursor.kind == Clang::Cursor::Kind::ParmDecl

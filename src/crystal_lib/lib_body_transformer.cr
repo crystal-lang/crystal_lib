@@ -16,6 +16,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       Crystal::Arg.new(arg.name.empty? ? "x#{i}" : arg.name, restriction: arg_type)
     end
     node.return_type = map_type(func.return_type)
+    node.varargs = func.variadic?
 
     check_pending_definitions(node)
   end

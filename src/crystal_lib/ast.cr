@@ -35,8 +35,9 @@ module CrystalLib
     property name
     property args
     property return_type
+    property? variadic
 
-    def initialize(@name, @return_type)
+    def initialize(@name, @return_type, @variadic)
       @args = [] of Arg
     end
 
@@ -44,6 +45,10 @@ module CrystalLib
       io << @return_type << " " << @name
       io << "("
       @args.join(", ", io)
+      if @variadic
+        io << ", " unless @args.empty?
+        io << "..."
+      end
       io << ")"
       io << ";" if semicolon
     end

@@ -45,6 +45,13 @@ describe Parser do
     nodes = parse("int some_func(float);")
     func = nodes.last as Function
     func.args.first.name.should eq("")
+    func.variadic?.should be_false
+  end
+
+  it "parses variadic function" do
+    nodes = parse("int some_func(float, ...);")
+    func = nodes.last as Function
+    func.variadic?.should be_true
   end
 
   it "parses function with function type" do

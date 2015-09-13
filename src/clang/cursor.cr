@@ -87,6 +87,10 @@ struct Clang::Cursor
     LibClang.is_unexposed(kind) != 0
   end
 
+  def variadic?
+    LibClang.cursor_is_variadic(self) != 0
+  end
+
   def hash
     LibClang.hash_cursor(self)
   end
