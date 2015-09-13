@@ -34,37 +34,53 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def map_type(type : PrimitiveType)
     case type.kind
     when PrimitiveType::Kind::Char_S
-      Crystal::Path.new(["LibC", "Char"])
+      path ["LibC", "Char"]
     when PrimitiveType::Kind::Int
-      Crystal::Path.new(["LibC", "Int"])
+      path ["LibC", "Int"]
     when PrimitiveType::Kind::UChar
-      Crystal::Path.new(["LibC", "UInt8"])
+      path ["LibC", "UInt8"]
     else
       raise "Unsupported primitive kind: #{type.kind}"
     end
   end
 
   def map_type(type : PointerType)
-    Crystal::Generic.new(Crystal::Path.new("Pointer"), map_type(type.type))
+    pointee_type = type.type
+
+    # Check the case of a pointer to an opaque struct
+    if opaque_type = opaque_type?(pointee_type)
+      alias_name = opaque_type.name.capitalize
+      declare_alias(alias_name, pointer_type(path("Void")))
+      return Crystal::Path.new(alias_name)
+    end
+
+    pointer_type(map_type(type.type))
   end
 
   def map_type(type : TypedefType)
-    other_type = type.type
-    if other_type.is_a?(NodeRef)
-      other_node = other_type.node
-      if other_node.is_a?(StructOrUnion)
-        if other_node.fields.empty?
-          alias_name = type.name.capitalize
-          declare_alias(alias_name, Crystal::Path.new("Void"))
-          return Crystal::Path.new(alias_name)
-        end
-      end
-    end
     map_type(type.type)
   end
 
   def map_type(type)
     raise "Unsupported: #{type}, #{type.class}"
+  end
+
+  def opaque_type?(type)
+    return unless type.is_a?(TypedefType)
+
+    other_type = type.type
+    return unless other_type.is_a?(NodeRef)
+
+    other_node = other_type.node
+    (other_node.is_a?(StructOrUnion) && other_node.fields.empty?) ? type : nil
+  end
+
+  def pointer_type(element_type)
+    Crystal::Generic.new(Crystal::Path.new("Pointer"), element_type)
+  end
+
+  def path(path)
+    Crystal::Path.new(path)
   end
 
   def declare_alias(name, type)

@@ -28,8 +28,8 @@ describe LibBodyTransformer do
   assert_transform("pcre",
     "fun compile = pcre_compile",
     %(
-    alias Pcre = Void
-    fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre*
+    alias Pcre = Void*
+    fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
     )
   )
 end
