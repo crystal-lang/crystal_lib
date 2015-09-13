@@ -86,6 +86,12 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     map_type(type.type)
   end
 
+  def map_type_internal(type : FunctionType)
+    inputs = type.inputs.map { |input| map_type(input) as Crystal::ASTNode }
+    output = map_type(type.output)
+    Crystal::Fun.new(inputs, output)
+  end
+
   def map_type_internal(type)
     raise "Unsupported: #{type}, #{type.class}"
   end

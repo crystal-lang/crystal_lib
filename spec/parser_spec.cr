@@ -47,6 +47,18 @@ describe Parser do
     func.args.first.name.should eq("")
   end
 
+  it "parses function with function type" do
+    nodes = parse("void some_func(int (*x)(float, char));")
+    func = nodes.last as Function
+    func.name.should eq("some_func")
+    func.return_type.should eq(PrimitiveType.void)
+    args = func.args
+    args.size.should eq(1)
+    var = args.first
+    var.name.should eq("x")
+    var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char] of Type, PrimitiveType.int))
+  end
+
   it "parses struct" do
     nodes = parse("struct point { int x; int y; };")
     type = nodes.last as StructOrUnion

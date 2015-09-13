@@ -63,4 +63,6 @@ describe LibBodyTransformer do
   ].each do |pair|
     assert_transform("simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}")
   end
+
+  assert_transform("simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int) : Void")
 end

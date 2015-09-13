@@ -113,7 +113,7 @@ class CrystalLib::Parser
         function.args << visit_param_declaration(subcursor)
       end
 
-      Clang::VisitResult::Recurse
+      Clang::VisitResult::Continue
     end
 
     function

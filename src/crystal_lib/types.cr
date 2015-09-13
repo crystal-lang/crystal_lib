@@ -54,6 +54,10 @@ module CrystalLib
     def self.char
       new(Kind::Char_S)
     end
+
+    def self.void
+      new(Kind::Void)
+    end
   end
 
   class PointerType < Type
