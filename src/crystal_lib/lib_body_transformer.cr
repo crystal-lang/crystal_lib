@@ -89,7 +89,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   end
 
   def declare_alias(name, type)
-    @pending_definitions << Crystal::Alias.new(name, type)
+    @pending_definitions << Crystal::TypeDef.new(name, type)
   end
 
   def check_pending_definitions(node)
