@@ -69,4 +69,6 @@ describe LibBodyTransformer do
     type FunPtr = LibC::Float, LibC::Char -> LibC::Int
     fun function_pointer2(x : FunPtr) : Void
     )
+
+  assert_transform "simple", "fun constant_array", "fun constant_array(x : LibC::Int[2]) : Void"
 end

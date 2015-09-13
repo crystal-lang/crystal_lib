@@ -92,6 +92,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     Crystal::Fun.new(inputs, output)
   end
 
+  def map_type_internal(type : ConstantArrayType)
+    element_type = map_type(type.type)
+    generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(type.size)] of Crystal::ASTNode)
+  end
+
   def map_type_internal(type)
     raise "Unsupported: #{type}, #{type.class}"
   end
@@ -107,7 +112,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   end
 
   def pointer_type(element_type)
-    Crystal::Generic.new(Crystal::Path.new("Pointer"), element_type)
+    generic(path("Pointer"), element_type)
+  end
+
+  def generic(name, args)
+    Crystal::Generic.new(name, args)
   end
 
   def path(path)
