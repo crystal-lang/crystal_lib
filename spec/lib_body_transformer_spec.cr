@@ -45,4 +45,22 @@ describe LibBodyTransformer do
     fun get_stringnumber = pcre_get_stringnumber(x0 : Pcre, x1 : LibC::Char*) : LibC::Int
     )
   )
+
+  [
+    {"void", "Void"},
+    {"int", "LibC::Int"},
+    {"short", "LibC::Short"},
+    {"char", "LibC::Char"},
+    {"long", "LibC::Long"},
+    {"long_long", "LibC::LongLong"},
+    {"unsigned_int", "LibC::UInt"},
+    {"unsigned_short", "LibC::UShort"},
+    {"unsigned_char", "LibC::UInt8"},
+    {"unsigned_long", "LibC::ULong"},
+    {"unsigned_long_long", "LibC::ULongLong"},
+    {"float", "LibC::Float"},
+    {"double", "LibC::Double"},
+  ].each do |pair|
+    assert_transform("simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}")
+  end
 end

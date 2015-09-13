@@ -21,7 +21,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   end
 
   def transform(node : Crystal::Assign)
-    name = (node.value as Crystal::Path).names.first
+    name = node.value.to_s
     match = find_node(name)
     case match
     when Define
@@ -38,12 +38,32 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
   def map_type_internal(type : PrimitiveType)
     case type.kind
+    when PrimitiveType::Kind::Void
+      path "Void"
     when PrimitiveType::Kind::Char_S
       path ["LibC", "Char"]
     when PrimitiveType::Kind::Int
       path ["LibC", "Int"]
+    when PrimitiveType::Kind::Short
+      path ["LibC", "Short"]
     when PrimitiveType::Kind::UChar
       path ["LibC", "UInt8"]
+    when PrimitiveType::Kind::Long
+      path ["LibC", "Long"]
+    when PrimitiveType::Kind::LongLong
+      path ["LibC", "LongLong"]
+    when PrimitiveType::Kind::UInt
+      path ["LibC", "UInt"]
+    when PrimitiveType::Kind::UShort
+      path ["LibC", "UShort"]
+    when PrimitiveType::Kind::ULong
+      path ["LibC", "ULong"]
+    when PrimitiveType::Kind::ULongLong
+      path ["LibC", "ULongLong"]
+    when PrimitiveType::Kind::Float
+      path ["LibC", "Float"]
+    when PrimitiveType::Kind::Double
+      path ["LibC", "Double"]
     else
       raise "Unsupported primitive kind: #{type.kind}"
     end
