@@ -20,21 +20,19 @@ private def join_lines(string)
 end
 
 describe LibBodyTransformer do
-  assert_transform("pcre",
+  assert_transform "pcre",
     "INFO_CAPTURECOUNT = PCRE_INFO_CAPTURECOUNT",
     "INFO_CAPTURECOUNT = 2"
-  )
 
-  assert_transform("pcre",
+  assert_transform "pcre",
     "fun compile = pcre_compile",
     %(
     type Pcre = Void*
     fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
     )
-  )
 
   # Check that it only declares the Pcre type once
-  assert_transform("pcre",
+  assert_transform "pcre",
     %(
     fun compile = pcre_compile
     fun get_stringnumber = pcre_get_stringnumber
@@ -44,7 +42,6 @@ describe LibBodyTransformer do
     fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
     fun get_stringnumber = pcre_get_stringnumber(x0 : Pcre, x1 : LibC::Char*) : LibC::Int
     )
-  )
 
   [
     {"void", "Void"},
@@ -61,8 +58,15 @@ describe LibBodyTransformer do
     {"float", "LibC::Float"},
     {"double", "LibC::Double"},
   ].each do |pair|
-    assert_transform("simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}")
+    assert_transform "simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}"
   end
 
-  assert_transform("simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int) : Void")
+  assert_transform "simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int) : Void"
+
+  assert_transform "simple",
+    "fun function_pointer2",
+    %(
+    type FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    fun function_pointer2(x : FunPtr) : Void
+    )
 end
