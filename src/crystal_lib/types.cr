@@ -5,32 +5,7 @@ module CrystalLib
   end
 
   class PrimitiveType < Type
-    enum Kind
-      Invalid = Clang::Type::Kind::Invalid
-      Void = Clang::Type::Kind::Void
-      Bool = Clang::Type::Kind::Bool
-      Char_U = Clang::Type::Kind::Char_U
-      UChar = Clang::Type::Kind::UChar
-      Char16 = Clang::Type::Kind::Char16
-      Char32 = Clang::Type::Kind::Char32
-      UShort = Clang::Type::Kind::UShort
-      UInt = Clang::Type::Kind::UInt
-      ULong = Clang::Type::Kind::ULong
-      ULongLong = Clang::Type::Kind::ULongLong
-      UInt128 = Clang::Type::Kind::UInt128
-      Char_S = Clang::Type::Kind::Char_S
-      SChar = Clang::Type::Kind::SChar
-      WChar = Clang::Type::Kind::WChar
-      Short = Clang::Type::Kind::Short
-      Int = Clang::Type::Kind::Int
-      Long = Clang::Type::Kind::Long
-      LongLong = Clang::Type::Kind::LongLong
-      Int128 = Clang::Type::Kind::Int128
-      Float = Clang::Type::Kind::Float
-      Double = Clang::Type::Kind::Double
-      LongDouble = Clang::Type::Kind::LongDouble
-      NullPtr = Clang::Type::Kind::NullPtr
-    end
+    alias Kind = Clang::Type::Kind
 
     property kind
 
