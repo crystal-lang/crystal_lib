@@ -86,7 +86,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     # Check the case of a pointer to an opaque struct
     if opaque_type = opaque_type?(pointee_type)
       alias_name = opaque_type.name.capitalize
-      return declare_alias(alias_name, pointer_type(path("Void")))
+      return declare_typedef(alias_name, pointer_type(path("Void")))
     end
 
     pointer_type(map_type(type.type))
@@ -137,7 +137,13 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def declare_alias(name, type)
     crystal_name = crystal_name(name)
     @pending_definitions << Crystal::Alias.new(crystal_name, type)
-    Crystal::Path.new(crystal_name)
+    path(crystal_name)
+  end
+
+  def declare_typedef(name, type)
+    crystal_name = crystal_name(name)
+    @pending_definitions << Crystal::TypeDef.new(crystal_name, type)
+    path(crystal_name)
   end
 
   def check_pending_definitions(node)
