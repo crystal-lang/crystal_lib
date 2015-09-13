@@ -46,6 +46,14 @@ module CrystalLib
     def self.int
       new(Kind::Int)
     end
+
+    def self.float
+      new(Kind::Float)
+    end
+
+    def self.char
+      new(Kind::Char_S)
+    end
   end
 
   class PointerType < Type
@@ -73,6 +81,21 @@ module CrystalLib
     end
 
     def_equals_and_hash type, size
+  end
+
+  class FunctionType < Type
+    property inputs
+    property output
+
+    def initialize(@inputs, @output)
+    end
+
+    def to_s(io)
+      @inputs.join(", ", io)
+      io << " -> " << @output
+    end
+
+    def_equals_and_hash inputs, output
   end
 
   class TypedefType < Type

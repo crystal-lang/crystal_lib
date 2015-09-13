@@ -166,7 +166,16 @@ class CrystalLib::Parser
   def type(type)
     case type.kind
     when Clang::Type::Kind::Pointer
-      pointer_type(type(type.pointee_type))
+      pointee_type = type.pointee_type
+
+      # Check the case of a function pointer type
+      result_type = pointee_type.result_type
+      if result_type.kind != Clang::Type::Kind::Invalid
+        arg_types = Array(Type).new(pointee_type.num_arg_types) { |index| type(pointee_type.arg_type(index)) }
+        return function_type(arg_types, type(result_type))
+      end
+
+      pointer_type(type(pointee_type))
     when Clang::Type::Kind::ConstantArray
       constant_array_type(type(type.array_element_type), type.array_size)
     when Clang::Type::Kind::Typedef
@@ -196,8 +205,16 @@ class CrystalLib::Parser
     @named_types ||= {} of String => Type
   end
 
+  record ConstantArrayKey, type, size
+
   def constant_array_types
-    @constant_array_types ||= {} of {Type, Int32} => Type
+    @constant_array_types ||= {} of ConstantArrayKey => Type
+  end
+
+  record FunctionKey, inputs, output
+
+  def function_types
+    @function_types ||= {} of FunctionKey => Type
   end
 
   def primitive_type(kind)
@@ -209,6 +226,10 @@ class CrystalLib::Parser
   end
 
   def constant_array_type(type, size)
-    constant_array_types[{type, size}] ||= ConstantArrayType.new(type, size)
+    constant_array_types[ConstantArrayKey.new(type, size)] ||= ConstantArrayType.new(type, size)
+  end
+
+  def function_type(inputs, output)
+    function_types[FunctionKey.new(inputs, output)] ||= FunctionType.new(inputs, output)
   end
 end

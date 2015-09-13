@@ -156,5 +156,12 @@ describe Parser do
       var.name.should eq("some_var")
       var.type.should eq(ConstantArrayType.new(PrimitiveType.int, 2))
     end
+
+    it "parses function" do
+      nodes = parse("int (*tester)(float, char) = 0;")
+      var = nodes.last as Var
+      var.name.should eq("tester")
+      var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char], PrimitiveType.int))
+    end
   end
 end
