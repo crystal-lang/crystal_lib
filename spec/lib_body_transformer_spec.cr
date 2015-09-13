@@ -27,18 +27,18 @@ describe LibBodyTransformer do
   assert_transform "pcre",
     "fun compile = pcre_compile",
     %(
-    type Pcre = Void*
+    alias Pcre = Void*
     fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
     )
 
-  # Check that it only declares the Pcre type once
+  # Check that it only declares the Pcre alias once
   assert_transform "pcre",
     %(
     fun compile = pcre_compile
     fun get_stringnumber = pcre_get_stringnumber
     ),
     %(
-    type Pcre = Void*
+    alias Pcre = Void*
     fun compile = pcre_compile(x0 : LibC::Char*, x1 : LibC::Int, x2 : LibC::Char**, x3 : LibC::Int*, x4 : LibC::UInt8*) : Pcre
     fun get_stringnumber = pcre_get_stringnumber(x0 : Pcre, x1 : LibC::Char*) : LibC::Int
     )
@@ -66,7 +66,7 @@ describe LibBodyTransformer do
   assert_transform "simple",
     "fun function_pointer2",
     %(
-    type FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    alias FunPtr = LibC::Float, LibC::Char -> LibC::Int
     fun function_pointer2(x : FunPtr) : Void
     )
 
@@ -77,7 +77,7 @@ describe LibBodyTransformer do
   assert_transform "simple", "$some_int : Void", "$some_int : LibC::Int"
   assert_transform "simple",
     "$some_fun_ptr : Void", %(
-    type FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    alias FunPtr = LibC::Float, LibC::Char -> LibC::Int
     $some_fun_ptr : FunPtr
   )
   assert_transform "simple", "$var = some_int : Void", "$var = some_int : LibC::Int"
