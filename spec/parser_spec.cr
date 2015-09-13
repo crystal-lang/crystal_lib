@@ -35,7 +35,7 @@ describe Parser do
     func.name.should eq("some_func")
     func.return_type.should eq(PrimitiveType.new(PrimitiveType::Kind::Int))
     args = func.args
-    args.length.should eq(1)
+    args.size.should eq(1)
     var = args.first
     var.name.should eq("x")
     var.type.should eq(PrimitiveType.new(PrimitiveType::Kind::Float))
@@ -51,27 +51,27 @@ describe Parser do
     nodes = parse("struct point { int x; int y; };")
     type = nodes.last as StructOrUnion
     type.kind.should eq(:struct)
-    type.name.should eq("point")
+    type.name.should eq("struct point")
     fields = type.fields
-    fields.length.should eq(2)
+    fields.size.should eq(2)
   end
 
   it "parses recursive struct" do
     nodes = parse("struct point { struct point* x; };")
     type = nodes.last as StructOrUnion
     type.kind.should eq(:struct)
-    type.name.should eq("point")
+    type.name.should eq("struct point")
     fields = type.fields
-    fields.length.should eq(1)
+    fields.size.should eq(1)
   end
 
   it "parses union" do
     nodes = parse("union point { int x; int y; };")
     type = nodes.last as StructOrUnion
     type.kind.should eq(:union)
-    type.name.should eq("point")
+    type.name.should eq("union point")
     fields = type.fields
-    fields.length.should eq(2)
+    fields.size.should eq(2)
   end
 
   it "parses unnamed struct" do
@@ -80,7 +80,7 @@ describe Parser do
     type.kind.should eq(:struct)
     type.name.should eq("")
     fields = type.fields
-    fields.length.should eq(2)
+    fields.size.should eq(2)
   end
 
   it "parses typedef" do
@@ -97,7 +97,7 @@ describe Parser do
     node_ref = type.type as NodeRef
     str = node_ref.node as StructOrUnion
     fields = str.fields
-    fields.length.should eq(2)
+    fields.size.should eq(2)
   end
 
   it "parses typedef struct" do
@@ -107,7 +107,7 @@ describe Parser do
     node_ref = type.type as NodeRef
     str = node_ref.node as StructOrUnion
     fields = str.fields
-    fields.length.should eq(2)
+    fields.size.should eq(2)
   end
 
   it "parses enum" do
@@ -116,7 +116,7 @@ describe Parser do
     enum_decl.name.should eq("colors")
     enum_decl.type.should eq(PrimitiveType.new(PrimitiveType::Kind::UInt))
     values = enum_decl.values
-    values.length.should eq(3)
+    values.size.should eq(3)
 
     values[0].name.should eq("red")
     values[0].value.should eq(0)

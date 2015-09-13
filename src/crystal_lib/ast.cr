@@ -71,13 +71,21 @@ module CrystalLib
     property name
     property fields
 
-    def initialize(@kind, @name)
+    def initialize(@kind, name)
+      if name.empty?
+        @name = ""
+      else
+        @name = "#{@kind} #{name}"
+      end
       @fields = [] of Var
     end
 
     def to_s(io, semicolon = true)
-      io << @kind
-      io << " " << @name if @name
+      if name.empty?
+        io << @kind
+      else
+        io << name
+      end
       io << " {\n"
       @fields.each do |field|
         io << "  " << field.type << " " << field.name << ";\n"

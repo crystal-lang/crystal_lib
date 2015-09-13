@@ -16,7 +16,7 @@ class CrystalLib::Generator
     name = nil
     @prefixes.each do |prefix|
       if node.name.starts_with?(prefix)
-        name = node.name[prefix.length .. -1]
+        name = node.name[prefix.size .. -1]
         break
       end
     end
@@ -52,7 +52,7 @@ class CrystalLib::Generator
     name = nil
     @prefixes.each do |prefix|
       if node.name.starts_with?(prefix)
-        name = node.name[prefix.length .. -1]
+        name = node.name[prefix.size .. -1]
         break
       end
     end

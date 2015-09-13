@@ -10,7 +10,7 @@ class Clang::Tokenization
   end
 
   def length
-    @tokens.length
+    @tokens.size
   end
 
   def [](index)
