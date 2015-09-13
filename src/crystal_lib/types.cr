@@ -42,6 +42,10 @@ module CrystalLib
     end
 
     def_equals_and_hash kind
+
+    def self.int
+      new(Kind::Int)
+    end
   end
 
   class PointerType < Type
@@ -55,6 +59,20 @@ module CrystalLib
     end
 
     def_equals_and_hash type
+  end
+
+  class ConstantArrayType < Type
+    property type
+    property size
+
+    def initialize(@type, @size)
+    end
+
+    def to_s(io)
+      io << @type << "[" << @size << "]"
+    end
+
+    def_equals_and_hash type, size
   end
 
   class TypedefType < Type

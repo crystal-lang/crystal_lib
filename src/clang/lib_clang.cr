@@ -103,6 +103,8 @@ lib LibClang
   fun get_enum_decl_integer_type = clang_getEnumDeclIntegerType(Cursor) : Type
   fun get_enum_constant_decl_value = clang_getEnumConstantDeclValue(Cursor) : Int64
   fun get_pointee_type = clang_getPointeeType(Type) : Type
+  fun get_array_element_type = clang_getArrayElementType(Type) : Type
+  fun get_array_size = clang_getArraySize(Type) : LibC::LongLong
   fun get_token_location = clang_getTokenLocation(TranslationUnit, Token) : SourceLocation
   fun get_type_declaration = clang_getTypeDeclaration(Type) : Cursor
   fun hash_cursor = clang_hashCursor(Cursor) : UInt32

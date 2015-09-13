@@ -26,14 +26,14 @@ describe Parser do
     nodes = parse("int some_var;")
     var = nodes.last as Var
     var.name.should eq("some_var")
-    var.type.should eq(PrimitiveType.new(PrimitiveType::Kind::Int))
+    var.type.should eq(PrimitiveType.int)
   end
 
   it "parses function" do
     nodes = parse("int some_func(float x);")
     func = nodes.last as Function
     func.name.should eq("some_func")
-    func.return_type.should eq(PrimitiveType.new(PrimitiveType::Kind::Int))
+    func.return_type.should eq(PrimitiveType.int)
     args = func.args
     args.size.should eq(1)
     var = args.first
@@ -87,7 +87,7 @@ describe Parser do
     nodes = parse("typedef int foo;")
     typedef = nodes.last as Typedef
     typedef.name.should eq("foo")
-    typedef.type.should eq(PrimitiveType.new(PrimitiveType::Kind::Int))
+    typedef.type.should eq(PrimitiveType.int)
   end
 
   it "parses typedef struct" do
@@ -129,25 +129,32 @@ describe Parser do
   end
 
   describe "types" do
+    it "parses primitive" do
+      nodes = parse("int some_var;")
+      var = nodes.last as Var
+      var.name.should eq("some_var")
+      var.type.should eq(PrimitiveType.int)
+    end
+
     it "parses pointer" do
       nodes = parse("int* some_var;")
       var = nodes.last as Var
       var.name.should eq("some_var")
-      var.type.should eq(PointerType.new(PrimitiveType.new(PrimitiveType::Kind::Int)))
+      var.type.should eq(PointerType.new(PrimitiveType.int))
     end
 
     it "parses typedef" do
       nodes = parse("typedef int foo; foo some_var;")
       var = nodes.last as Var
       var.name.should eq("some_var")
-      var.type.should eq(TypedefType.new("foo", PrimitiveType.new(PrimitiveType::Kind::Int)))
+      var.type.should eq(TypedefType.new("foo", PrimitiveType.int))
     end
 
-    # it "parses typedef struct" do
-    #   nodes = parse("typedef struct { int x; } foo; foo some_var;")
-    #   var = nodes.last as Var
-    #   var.name.should eq("some_var")
-    #   var.type.should eq(TypedefType.new("foo", PrimitiveType.new(PrimitiveType::Kind::Int)))
-    # end
+    it "parses constant array" do
+      nodes = parse("int some_var[2];")
+      var = nodes.last as Var
+      var.name.should eq("some_var")
+      var.type.should eq(ConstantArrayType.new(PrimitiveType.int, 2))
+    end
   end
 end

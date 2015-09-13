@@ -167,6 +167,8 @@ class CrystalLib::Parser
     case type.kind
     when Clang::Type::Kind::Pointer
       pointer_type(type(type.pointee_type))
+    when Clang::Type::Kind::ConstantArray
+      constant_array_type(type(type.array_element_type), type.array_size)
     when Clang::Type::Kind::Typedef
       spelling = type.spelling.gsub("const ", "")
       named_types[spelling]? || primitive_type(Clang::Type::Kind::Invalid)
@@ -194,11 +196,19 @@ class CrystalLib::Parser
     @named_types ||= {} of String => Type
   end
 
+  def constant_array_types
+    @constant_array_types ||= {} of {Type, Int32} => Type
+  end
+
   def primitive_type(kind)
     primitive_types[kind] ||= PrimitiveType.new(PrimitiveType::Kind.new(kind.value))
   end
 
   def pointer_type(type)
     pointer_types[type] ||= PointerType.new(type)
+  end
+
+  def constant_array_type(type, size)
+    constant_array_types[{type, size}] ||= ConstantArrayType.new(type, size)
   end
 end
