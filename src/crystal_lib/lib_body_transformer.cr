@@ -1,4 +1,7 @@
-require "compiler/crystal/**"
+require "compiler/crystal/*"
+require "compiler/crystal/syntax/parser"
+require "compiler/crystal/syntax/transformer"
+require "compiler/crystal/semantic/*"
 
 class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def initialize(nodes : Array(CrystalLib::ASTNode))
@@ -15,7 +18,12 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       arg_type = map_type(arg.type)
       Crystal::Arg.new(arg.name.empty? ? "x#{i}" : arg.name, restriction: arg_type)
     end
-    node.return_type = map_type(func.return_type)
+    return_type = map_type(func.return_type)
+
+    unless return_type.is_a?(Crystal::Path) && return_type.names.size == 1 && return_type.names.first == "Void"
+      node.return_type = return_type
+    end
+
     node.varargs = func.variadic?
 
     check_pending_definitions(node)
@@ -85,15 +93,40 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
     # Check the case of a pointer to an opaque struct
     if opaque_type = opaque_type?(pointee_type)
-      alias_name = opaque_type.name.capitalize
-      return declare_typedef(alias_name, pointer_type(path("Void")))
+      typedef_name = opaque_type.name.capitalize
+      return declare_typedef(typedef_name, pointer_type(path("Void")))
     end
 
     pointer_type(map_type(type.type))
   end
 
   def map_type_internal(type : TypedefType)
-    mapped = map_type(type.type)
+    if type.name == "size_t"
+      return path ["LibC", "SizeT"]
+    end
+
+    # Check the case of a typedef to a pointer to an opaque struct
+    internal_type = type.type
+    if internal_type.is_a?(PointerType)
+      pointee_type = internal_type.type
+      if pointee_type.is_a?(NodeRef)
+        ref_node = pointee_type.node
+        if ref_node.is_a?(StructOrUnion) && ref_node.fields.empty?
+          typedef_name = type.name
+          return declare_typedef(typedef_name, pointer_type(path("Void")))
+        end
+      end
+    end
+
+    if internal_type.is_a?(NodeRef)
+      internal_node = internal_type.node
+      if internal_node.is_a?(CrystalLib::Enum)
+        @typedef_name = type.name
+        return map_type(internal_node)
+      end
+    end
+
+    mapped = map_type(internal_type)
     declare_alias(type.name, mapped)
   end
 
@@ -108,8 +141,33 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(type.size)] of Crystal::ASTNode)
   end
 
+  def map_type_internal(type : NodeRef)
+    map_type(type.node)
+  end
+
+  def map_type_internal(type : CrystalLib::Enum)
+    enum_name = crystal_type_name(check_anonymous_name(type.name))
+    enum_members = type.values.map do |value|
+      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(value.value)) as Crystal::ASTNode
+    end
+    enum_def = Crystal::EnumDef.new(enum_name, enum_members)
+    @pending_definitions << enum_def
+    path(enum_name)
+  end
+
+  def map_type_internal(type : CrystalLib::StructOrUnion)
+    struct_name = crystal_type_name(check_anonymous_name(type.unscoped_name))
+    klass = type.kind == :struct ? Crystal::StructDef : Crystal::UnionDef
+    fields = type.fields.map do |field|
+      Crystal::Arg.new(crystal_field_name(field.name), restriction: map_type(field.type)) as Crystal::ASTNode
+    end
+    struct_def = klass.new(struct_name, fields)
+    @pending_definitions << struct_def
+    path(struct_name)
+  end
+
   def map_type_internal(type)
-    raise "Unsupported: #{type}, #{type.class}"
+    raise "Unsupported type: #{type}, #{type.class}"
   end
 
   def opaque_type?(type)
@@ -134,14 +192,18 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     Crystal::Path.new(path)
   end
 
+  def check_anonymous_name(name)
+    name.empty? ? @typedef_name.not_nil! : name
+  end
+
   def declare_alias(name, type)
-    crystal_name = crystal_name(name)
+    crystal_name = crystal_type_name(name)
     @pending_definitions << Crystal::Alias.new(crystal_name, type)
     path(crystal_name)
   end
 
   def declare_typedef(name, type)
-    crystal_name = crystal_name(name)
+    crystal_name = crystal_type_name(name)
     @pending_definitions << Crystal::TypeDef.new(crystal_name, type)
     path(crystal_name)
   end
@@ -164,7 +226,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     @nodes[name]?
   end
 
-  def crystal_name(name)
+  def crystal_type_name(name)
     name.camelcase
+  end
+
+  def crystal_field_name(name)
+    name.underscore
   end
 end

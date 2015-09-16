@@ -44,7 +44,6 @@ describe LibBodyTransformer do
     )
 
   [
-    {"void", "Void"},
     {"int", "LibC::Int"},
     {"short", "LibC::Short"},
     {"char", "LibC::Char"},
@@ -57,22 +56,24 @@ describe LibBodyTransformer do
     {"unsigned_long_long", "LibC::ULongLong"},
     {"float", "LibC::Float"},
     {"double", "LibC::Double"},
+    {"size_t", "LibC::SizeT"},
   ].each do |pair|
     assert_transform "simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}"
   end
 
-  assert_transform "simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int) : Void"
+  assert_transform "simple", "fun just_void", "fun just_void"
+  assert_transform "simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int)"
 
   assert_transform "simple",
     "fun function_pointer2",
     %(
     alias FunPtr = LibC::Float, LibC::Char -> LibC::Int
-    fun function_pointer2(x : FunPtr) : Void
+    fun function_pointer2(x : FunPtr)
     )
 
-  assert_transform "simple", "fun constant_array", "fun constant_array(x : LibC::Int[2]) : Void"
+  assert_transform "simple", "fun constant_array", "fun constant_array(x : LibC::Int[2])"
 
-  assert_transform "simple", "fun variadic", "fun variadic(x : LibC::Int, ...) : Void"
+  assert_transform "simple", "fun variadic", "fun variadic(x : LibC::Int, ...)"
 
   assert_transform "simple", "$some_int : Void", "$some_int : LibC::Int"
   assert_transform "simple",
@@ -81,4 +82,10 @@ describe LibBodyTransformer do
     $some_fun_ptr : FunPtr
   )
   assert_transform "simple", "$var = some_int : Void", "$var = some_int : LibC::Int"
+
+  assert_transform "simple",
+    "fun just_opaque_reference", %(
+      type OpaqueReference = Void*
+      fun just_opaque_reference : OpaqueReference
+    )
 end

@@ -129,6 +129,15 @@ describe Parser do
     fields.size.should eq(2)
   end
 
+  it "parses typedef enum" do
+    nodes = parse("typedef enum { x, y } point;")
+    type = nodes.last as Typedef
+    type.name.should eq("point")
+    node_ref = type.type as NodeRef
+    enum_def = node_ref.node as CrystalLib::Enum
+    enum_def.values.size.should eq(2)
+  end
+
   it "parses enum" do
     nodes = parse("enum colors { red, green = 10, blue };")
     enum_decl = nodes.last as CrystalLib::Enum

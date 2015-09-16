@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 int just_int();
 short just_short();
 char just_char();
@@ -11,6 +13,7 @@ unsigned long just_unsigned_long();
 unsigned long long just_unsigned_long_long();
 float just_float();
 double just_double();
+size_t just_size_t();
 void function_pointer(int (*x)(float, char));
 
 typedef int (*fun_ptr)(float, char);
@@ -24,3 +27,7 @@ void variadic(int x, ...);
 
 int some_int;
 fun_ptr some_fun_ptr;
+
+typedef struct opaque *opaque_reference;
+
+opaque_reference just_opaque_reference();

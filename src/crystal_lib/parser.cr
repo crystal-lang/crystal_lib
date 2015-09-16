@@ -1,30 +1,34 @@
 class CrystalLib::Parser
   getter nodes
 
-  def self.parse(source)
-    parser = Parser.new(source)
+  def self.parse(source, flags = [] of String)
+    parser = Parser.new(source, flags)
     parser.parse
-    parser.nodes
+    nodes = parser.nodes
+    # puts nodes.map(&.to_s).join("\n")
+    nodes
   end
 
-  def initialize(@source)
+  def initialize(@source, flags = [] of String)
     @nodes = [] of ASTNode
     @cursor_hash_to_node = {} of UInt32 => ASTNode
     @idx = Clang::Index.new
-    @tu = @idx.parse_translation_unit "input.c", unsaved_files: [Clang::UnsavedFile.new("input.c", source)]
+    @tu = @idx.parse_translation_unit "input.c", args: flags, unsaved_files: [Clang::UnsavedFile.new("input.c", source)]
   end
 
   def parse
     @tu.cursor.visit_children do |cursor|
       node = visit(cursor)
-      @nodes << node if node
-      Clang::VisitResult::Continue
+      if node
+        @nodes << node
+        Clang::VisitResult::Continue
+      else
+        Clang::VisitResult::Recurse
+      end
     end
   end
 
   def visit(cursor)
-    # puts "#{cursor.kind}: #{cursor.spelling}"
-
     case cursor.kind
     when Clang::Cursor::Kind::MacroDefinition
       visit_macro_definition(cursor)
@@ -40,6 +44,8 @@ class CrystalLib::Parser
       visit_typedef_declaration(cursor)
     when Clang::Cursor::Kind::EnumDecl
       visit_enum_declaration(cursor)
+    else
+      # puts "#{cursor.kind}: #{cursor.spelling}"
     end
   end
 
@@ -143,6 +149,8 @@ class CrystalLib::Parser
 
     type = type(cursor.enum_integer_type)
     enum_decl = Enum.new(name, type)
+
+    @cursor_hash_to_node[cursor.hash] = enum_decl
 
     cursor.visit_children do |subcursor|
       if subcursor.kind == Clang::Cursor::Kind::EnumConstantDecl

@@ -76,7 +76,10 @@ module CrystalLib
     property name
     property fields
 
+    getter unscoped_name
+
     def initialize(@kind, name)
+      @unscoped_name = name
       if name.empty?
         @name = ""
       else

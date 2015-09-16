@@ -46,13 +46,14 @@ lib LibClang
   alias CursorKind = Clang::Cursor::Kind
 
   fun create_index = clang_createIndex(excludeDeclarationsFromPCH : Int32, displayDiagnostics : Int32) : Index
-  fun parse_translation_unit = clang_parseTranslationUnit(idx : Index,
+  fun parse_translation_unit2 = clang_parseTranslationUnit2(idx : Index,
                                                           source_filename : UInt8*,
                                                           command_line_args : UInt8**,
                                                           num_command_line_args : Int32,
                                                           unsaved_files : UnsavedFile*,
                                                           num_unsaved_files : UInt32,
-                                                          options : UInt32) : TranslationUnit
+                                                          options : UInt32,
+                                                          tu : TranslationUnit*) : Int32
   fun create_translation_unit_from_source_file = clang_createTranslationUnitFromSourceFile(
                                                     Index,
                                                     source_filename : UInt8*,
