@@ -1,7 +1,6 @@
 class CrystalLib::LibTransformer < Crystal::Transformer
   def initialize
     @includes = [] of Crystal::Attribute
-    @pending_definitions = [] of Crystal::ASTNode
   end
 
   def transform(node : Crystal::Attribute)
