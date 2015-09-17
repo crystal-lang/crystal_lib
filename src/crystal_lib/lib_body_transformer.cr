@@ -120,10 +120,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
     if internal_type.is_a?(NodeRef)
       internal_node = internal_type.node
-      if internal_node.is_a?(CrystalLib::Enum)
-        @typedef_name = type.name
-        return map_type(internal_node)
-      end
+      @typedef_name = type.name
+      return map_type(internal_node)
     end
 
     mapped = map_type(internal_type)

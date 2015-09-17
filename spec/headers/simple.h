@@ -31,3 +31,26 @@ fun_ptr some_fun_ptr;
 typedef struct opaque *opaque_reference;
 
 opaque_reference just_opaque_reference();
+
+typedef enum {
+  x,
+  y = 123
+} some_enum_1;
+some_enum_1 just_some_enum_1();
+
+enum some_enum_2 {
+  z = 456
+};
+enum some_enum_2 just_some_enum_2();
+
+typedef struct { int x; } some_struct_1;
+some_struct_1 just_some_struct_1();
+
+struct some_struct_2 {
+  int y;
+};
+struct some_struct_2 just_some_struct_2();
+
+typedef union { int x; } some_union_1;
+some_union_1 just_some_union_1();
+

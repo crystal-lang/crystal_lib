@@ -88,4 +88,45 @@ describe LibBodyTransformer do
       type OpaqueReference = Void*
       fun just_opaque_reference : OpaqueReference
     )
+
+  assert_transform "simple",
+    "fun just_some_enum_1", %(
+      enum SomeEnum1
+        X = 0
+        Y = 123
+      end
+      fun just_some_enum_1 : SomeEnum1
+    )
+
+  assert_transform "simple",
+    "fun just_some_enum_2", %(
+      enum SomeEnum2
+        Z = 456
+      end
+      fun just_some_enum_2 : SomeEnum2
+    )
+
+  assert_transform "simple",
+    "fun just_some_struct_1", %(
+      struct SomeStruct1
+        x : LibC::Int
+      end
+      fun just_some_struct_1 : SomeStruct1
+    )
+
+  assert_transform "simple",
+    "fun just_some_struct_2", %(
+      struct SomeStruct2
+        y : LibC::Int
+      end
+      fun just_some_struct_2 : SomeStruct2
+    )
+
+  assert_transform "simple",
+    "fun just_some_union_1", %(
+      union SomeUnion1
+        x : LibC::Int
+      end
+      fun just_some_union_1 : SomeUnion1
+    )
 end
