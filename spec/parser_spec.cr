@@ -192,6 +192,13 @@ describe Parser do
       var.type.should eq(ConstantArrayType.new(PrimitiveType.int, 2))
     end
 
+    it "parses complete array" do
+      nodes = parse("int some_var[];")
+      var = nodes.last as Var
+      var.name.should eq("some_var")
+      var.type.should eq(IncompleteArrayType.new(PrimitiveType.int))
+    end
+
     it "parses function" do
       nodes = parse("int (*tester)(float, char) = 0;")
       var = nodes.last as Var

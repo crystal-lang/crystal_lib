@@ -59,3 +59,5 @@ struct some_struct_3 {
 };
 struct some_struct_3 just_some_struct_3();
 
+void just_some_incomplete_array(char* argv[]);
+

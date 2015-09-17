@@ -188,6 +188,8 @@ class CrystalLib::Parser
       pointer_type(type(pointee_type))
     when Clang::Type::Kind::ConstantArray
       constant_array_type(type(type.array_element_type), type.array_size)
+    when Clang::Type::Kind::IncompleteArray
+      incomplete_array_type(type(type.array_element_type))
     when Clang::Type::Kind::Typedef
       spelling = type.spelling.gsub("const ", "")
       named_types[spelling]? || primitive_type(Clang::Type::Kind::Invalid)
@@ -221,6 +223,10 @@ class CrystalLib::Parser
     @constant_array_types ||= {} of ConstantArrayKey => Type
   end
 
+  def incomplete_array_types
+    @incomplete_array_types ||= {} of typeof(object_id) => Type
+  end
+
   record FunctionKey, inputs_ids, output_id
 
   def function_types
@@ -237,6 +243,10 @@ class CrystalLib::Parser
 
   def constant_array_type(type, size)
     constant_array_types[ConstantArrayKey.new(type.object_id, size)] ||= ConstantArrayType.new(type, size)
+  end
+
+  def incomplete_array_type(type)
+    incomplete_array_types[type.object_id] ||= IncompleteArrayType.new(type)
   end
 
   def function_type(inputs, output)

@@ -78,6 +78,11 @@ class CrystalLib::TypeMapper
     generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(type.size)] of Crystal::ASTNode)
   end
 
+  def map_internal(type : IncompleteArrayType)
+    element_type = map(type.type)
+    pointer_type(element_type)
+  end
+
   def map_internal(type : NodeRef)
     map(type.node)
   end

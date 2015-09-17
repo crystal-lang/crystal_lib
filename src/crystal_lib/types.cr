@@ -87,6 +87,19 @@ module CrystalLib
     def_equals_and_hash type, size
   end
 
+  class IncompleteArrayType < Type
+    property type
+
+    def initialize(@type)
+    end
+
+    def to_s(io)
+      io << @type << "[]"
+    end
+
+    def_equals_and_hash type
+  end
+
   class FunctionType < Type
     property inputs
     property output

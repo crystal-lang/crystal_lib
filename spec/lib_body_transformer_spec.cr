@@ -137,4 +137,9 @@ describe LibBodyTransformer do
       end
       fun just_some_struct_3 : SomeStruct3
     )
+
+  assert_transform "simple",
+    "fun just_some_incomplete_array", %(
+      fun just_some_incomplete_array(argv : LibC::Char**)
+    )
 end

@@ -15,5 +15,5 @@ lib LibSDL
   fun show_cursor = SDL_ShowCursor
   fun get_ticks = SDL_GetTicks
   fun flip = SDL_Flip
-  # fun main = SDL_main
+  fun main = SDL_main
 end
