@@ -196,7 +196,7 @@ class CrystalLib::Parser
       if existing
         NodeRef.new(existing)
       else
-        primitive_type(Clang::Type::Kind::Invalid)
+        UnexposedType.new(type.cursor.spelling)
       end
     else
       primitive_type(type.kind)

@@ -116,6 +116,19 @@ module CrystalLib
     def_equals_and_hash name, type
   end
 
+  class UnexposedType < Type
+    property name
+
+    def initialize(@name)
+    end
+
+    def to_s(io)
+      io << @name
+    end
+
+    def_equals_and_hash name
+  end
+
   class NodeRef < Type
     property node
 

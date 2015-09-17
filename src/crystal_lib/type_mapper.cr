@@ -103,6 +103,10 @@ class CrystalLib::TypeMapper
     path(struct_name)
   end
 
+  def map_internal(type : UnexposedType)
+    path("Void")
+  end
+
   def map_internal(type)
     raise "Unsupported type: #{type}, #{type.class}"
   end

@@ -75,6 +75,13 @@ describe Parser do
     fields.size.should eq(2)
   end
 
+  it "parses struct with unexposed struct" do
+    nodes = parse("struct point { struct foo* x; };")
+    type = nodes.last as StructOrUnion
+    fields = type.fields
+    fields.first.type.should eq(PointerType.new(UnexposedType.new("foo")))
+  end
+
   it "parses recursive struct" do
     nodes = parse("struct point { struct point* x; };")
     type = nodes.last as StructOrUnion

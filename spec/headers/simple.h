@@ -54,3 +54,8 @@ struct some_struct_2 just_some_struct_2();
 typedef union { int x; } some_union_1;
 some_union_1 just_some_union_1();
 
+struct some_struct_3 {
+  struct unexposed* x;
+};
+struct some_struct_3 just_some_struct_3();
+

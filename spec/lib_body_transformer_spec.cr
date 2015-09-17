@@ -129,4 +129,12 @@ describe LibBodyTransformer do
       end
       fun just_some_union_1 : SomeUnion1
     )
+
+  assert_transform "simple",
+    "fun just_some_struct_3", %(
+      struct SomeStruct3
+        x : Void*
+      end
+      fun just_some_struct_3 : SomeStruct3
+    )
 end
