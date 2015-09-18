@@ -178,14 +178,16 @@ class CrystalLib::Parser
     when Clang::Type::Kind::Pointer
       pointee_type = type.pointee_type
 
-      # Check the case of a function pointer type
+      # Check the case of a function pointer type. I couldn't find another one to do this
+      # other than checking the result type, and if it's not invalid it means it's a function
       result_type = pointee_type.result_type
       if result_type.kind != Clang::Type::Kind::Invalid
-        arg_types = Array(Type).new(pointee_type.num_arg_types) { |index| type(pointee_type.arg_type(index)) }
-        return function_type(arg_types, type(result_type))
+        return build_function_type(pointee_type, result_type)
       end
 
       pointer_type(type(pointee_type))
+    when Clang::Type::Kind::FunctionProto
+      build_function_type type
     when Clang::Type::Kind::BlockPointer
       block_pointer_type(type(type.pointee_type))
     when Clang::Type::Kind::ConstantArray
@@ -220,8 +222,13 @@ class CrystalLib::Parser
          PrimitiveType::Kind::LongDouble
       primitive_type(type.kind)
     else
-      raise "Don't know how to convert #{type.cursor.spelling} (#{type.kind})"
+      raise "Don't know how to convert #{type.spelling} (#{type.kind})"
     end
+  end
+
+  def build_function_type(type, result_type = type.result_type)
+    arg_types = Array(Type).new(type.num_arg_types) { |index| type(type.arg_type(index)) }
+    function_type(arg_types, type(result_type))
   end
 
   def primitive_types

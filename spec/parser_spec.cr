@@ -145,6 +145,13 @@ describe Parser do
     enum_def.values.size.should eq(2)
   end
 
+  it "parses typedef function" do
+    nodes = parse("typedef int foo(float);")
+    typedef = nodes.last as Typedef
+    typedef.name.should eq("foo")
+    typedef.type.should eq(FunctionType.new([PrimitiveType.float], PrimitiveType.int))
+  end
+
   it "parses enum" do
     nodes = parse("enum colors { red, green = 10, blue };")
     enum_decl = nodes.last as CrystalLib::Enum
