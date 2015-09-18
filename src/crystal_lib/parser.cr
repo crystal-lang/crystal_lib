@@ -79,7 +79,8 @@ class CrystalLib::Parser
           spelling = token.spelling
           break if spelling == "#"
           str << spelling
-        when Clang::Token::Kind::Identifier
+        when Clang::Token::Kind::Identifier,
+             Clang::Token::Kind::Keyword
           spelling = token.spelling
           str << spelling
         else

@@ -33,7 +33,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     match = find_node(name)
     raise "can't find constant #{name}" unless match.is_a?(Define)
 
-    node.value = Crystal::Parser.parse(match.value)
+    begin
+      node.value = Crystal::Parser.parse(match.value)
+    rescue ex : Crystal::Exception
+      raise "can't parse value of constant #{name}: #{match.value}"
+    end
     node
   end
 

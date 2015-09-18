@@ -22,6 +22,13 @@ describe Parser do
     define.value.should eq("1")
   end
 
+  it "parses define with ((void*)-2) " do
+    nodes = parse("#define FOO ((void*)-2)")
+    define = nodes.last as Define
+    define.name.should eq("FOO")
+    define.value.should eq("((void*)-2)")
+  end
+
   it "parses variable" do
     nodes = parse("int some_var;")
     var = nodes.last as Var
