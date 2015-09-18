@@ -11,8 +11,10 @@ unsigned int just_unsigned_int();
 unsigned short just_unsigned_short();
 unsigned long just_unsigned_long();
 unsigned long long just_unsigned_long_long();
+signed char just_signed_char();
 float just_float();
 double just_double();
+long double just_long_double();
 size_t just_size_t();
 void function_pointer(int (*x)(float, char));
 

@@ -73,6 +73,19 @@ module CrystalLib
     def_equals_and_hash type
   end
 
+  class BlockPointerType < Type
+    property type
+
+    def initialize(@type)
+    end
+
+    def to_s(io)
+      io << @type << "^"
+    end
+
+    def_equals_and_hash type
+  end
+
   class ConstantArrayType < Type
     property type
     property size

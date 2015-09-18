@@ -54,8 +54,10 @@ describe LibBodyTransformer do
     {"unsigned_char", "LibC::UInt8"},
     {"unsigned_long", "LibC::ULong"},
     {"unsigned_long_long", "LibC::ULongLong"},
+    {"signed_char", "LibC::Char"},
     {"float", "LibC::Float"},
     {"double", "LibC::Double"},
+    {"long_double", "LibC::LongDouble"},
     {"size_t", "LibC::SizeT"},
   ].each do |pair|
     assert_transform "simple", "fun just_#{pair[0]}", "fun just_#{pair[0]} : #{pair[1]}"

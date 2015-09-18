@@ -21,7 +21,8 @@ class CrystalLib::TypeMapper
     case type.kind
     when PrimitiveType::Kind::Void
       path "Void"
-    when PrimitiveType::Kind::Char_S
+    when PrimitiveType::Kind::Char_S,
+         PrimitiveType::Kind::SChar
       path ["LibC", "Char"]
     when PrimitiveType::Kind::UChar
       path ["LibC", "UInt8"]
@@ -34,7 +35,8 @@ class CrystalLib::TypeMapper
          PrimitiveType::Kind::ULong,
          PrimitiveType::Kind::ULongLong,
          PrimitiveType::Kind::Float,
-         PrimitiveType::Kind::Double
+         PrimitiveType::Kind::Double,
+         PrimitiveType::Kind::LongDouble
       path ["LibC", type.kind.to_s]
     else
       raise "Unsupported primitive kind: #{type.kind}"
@@ -50,6 +52,10 @@ class CrystalLib::TypeMapper
       return declare_typedef(typedef_name, pointer_type(path("Void")))
     end
 
+    pointer_type(map_non_recursive(type.type))
+  end
+
+  def map_internal(type : BlockPointerType)
     pointer_type(map_non_recursive(type.type))
   end
 

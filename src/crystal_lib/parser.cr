@@ -186,6 +186,8 @@ class CrystalLib::Parser
       end
 
       pointer_type(type(pointee_type))
+    when Clang::Type::Kind::BlockPointer
+      block_pointer_type(type(type.pointee_type))
     when Clang::Type::Kind::ConstantArray
       constant_array_type(type(type.array_element_type), type.array_size)
     when Clang::Type::Kind::IncompleteArray
@@ -200,8 +202,24 @@ class CrystalLib::Parser
       else
         UnexposedType.new(type.cursor.spelling)
       end
-    else
+    when PrimitiveType::Kind::Void,
+         PrimitiveType::Kind::Char_S,
+         PrimitiveType::Kind::SChar,
+         PrimitiveType::Kind::UChar,
+         PrimitiveType::Kind::Int,
+         PrimitiveType::Kind::Short,
+         PrimitiveType::Kind::Long,
+         PrimitiveType::Kind::LongLong,
+         PrimitiveType::Kind::UInt,
+         PrimitiveType::Kind::UShort,
+         PrimitiveType::Kind::ULong,
+         PrimitiveType::Kind::ULongLong,
+         PrimitiveType::Kind::Float,
+         PrimitiveType::Kind::Double,
+         PrimitiveType::Kind::LongDouble
       primitive_type(type.kind)
+    else
+      raise "Don't know how to convert #{type.cursor.spelling} (#{type.kind})"
     end
   end
 
@@ -211,6 +229,10 @@ class CrystalLib::Parser
 
   def pointer_types
     @pointer_types ||= {} of typeof(object_id) => Type
+  end
+
+  def block_pointer_types
+    @block_pointer_types ||= {} of typeof(object_id) => Type
   end
 
   def named_types
@@ -239,6 +261,10 @@ class CrystalLib::Parser
 
   def pointer_type(type)
     pointer_types[type.object_id] ||= PointerType.new(type)
+  end
+
+  def block_pointer_type(type)
+    block_pointer_types[type.object_id] ||= BlockPointerType.new(type)
   end
 
   def constant_array_type(type, size)
