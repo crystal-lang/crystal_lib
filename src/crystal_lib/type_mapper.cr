@@ -26,7 +26,8 @@ class CrystalLib::TypeMapper
       path ["LibC", "Char"]
     when PrimitiveType::Kind::UChar
       path ["LibC", "UInt8"]
-    when PrimitiveType::Kind::Int,
+    when PrimitiveType::Kind::Bool,
+         PrimitiveType::Kind::Int,
          PrimitiveType::Kind::Short,
          PrimitiveType::Kind::Long,
          PrimitiveType::Kind::LongLong,

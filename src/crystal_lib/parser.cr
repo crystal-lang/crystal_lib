@@ -203,6 +203,7 @@ class CrystalLib::Parser
         UnexposedType.new(type.cursor.spelling)
       end
     when PrimitiveType::Kind::Void,
+         PrimitiveType::Kind::Bool,
          PrimitiveType::Kind::Char_S,
          PrimitiveType::Kind::SChar,
          PrimitiveType::Kind::UChar,
