@@ -142,4 +142,13 @@ describe LibBodyTransformer do
     "fun just_some_incomplete_array", %(
       fun just_some_incomplete_array(argv : LibC::Char**)
     )
+
+  assert_transform "simple",
+    "fun just_some_recursive_struct", %(
+      struct SomeRecursiveStruct
+        x : LibC::Int
+        y : SomeRecursiveStruct*
+      end
+      fun just_some_recursive_struct : SomeRecursiveStruct
+    )
 end

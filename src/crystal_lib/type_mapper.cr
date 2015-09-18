@@ -1,12 +1,19 @@
 class CrystalLib::TypeMapper
+  record PendingStruct, crystal_node, clang_type
+
   getter pending_definitions
 
   def initialize
     @pending_definitions = [] of Crystal::ASTNode
+    @pending_structs = [] of PendingStruct
     @generated = {} of typeof(object_id) => Crystal::ASTNode
   end
 
   def map(type)
+    map_non_recursive(type).tap { expand_pending_structs }
+  end
+
+  def map_non_recursive(type)
     @generated[type.object_id] ||= map_internal(type)
   end
 
@@ -43,7 +50,7 @@ class CrystalLib::TypeMapper
       return declare_typedef(typedef_name, pointer_type(path("Void")))
     end
 
-    pointer_type(map(type.type))
+    pointer_type(map_non_recursive(type.type))
   end
 
   def map_internal(type : TypedefType)
@@ -60,31 +67,31 @@ class CrystalLib::TypeMapper
     if internal_type.is_a?(NodeRef)
       internal_node = internal_type.node
       @typedef_name = type.name
-      return map(internal_node)
+      return map_non_recursive(internal_node)
     end
 
-    mapped = map(internal_type)
+    mapped = map_non_recursive(internal_type)
     declare_alias(type.name, mapped)
   end
 
   def map_internal(type : FunctionType)
-    inputs = type.inputs.map { |input| map(input) as Crystal::ASTNode }
-    output = map(type.output)
+    inputs = type.inputs.map { |input| map_non_recursive(input) as Crystal::ASTNode }
+    output = map_non_recursive(type.output)
     Crystal::Fun.new(inputs, output)
   end
 
   def map_internal(type : ConstantArrayType)
-    element_type = map(type.type)
+    element_type = map_non_recursive(type.type)
     generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(type.size)] of Crystal::ASTNode)
   end
 
   def map_internal(type : IncompleteArrayType)
-    element_type = map(type.type)
+    element_type = map_non_recursive(type.type)
     pointer_type(element_type)
   end
 
   def map_internal(type : NodeRef)
-    map(type.node)
+    map_non_recursive(type.node)
   end
 
   def map_internal(type : CrystalLib::Enum)
@@ -100,11 +107,13 @@ class CrystalLib::TypeMapper
   def map_internal(type : CrystalLib::StructOrUnion)
     struct_name = crystal_type_name(check_anonymous_name(type.unscoped_name))
     klass = type.kind == :struct ? Crystal::StructDef : Crystal::UnionDef
-    fields = type.fields.map do |field|
-      Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)) as Crystal::ASTNode
-    end
-    struct_def = klass.new(struct_name, fields)
-    @pending_definitions << struct_def
+    struct_def = klass.new(struct_name)
+
+    # Leave struct body for later, because of possible recursiveness
+    @pending_structs << PendingStruct.new(struct_def, type)
+
+    @pending_definitions << struct_def unless @generated.has_key?(type.object_id)
+
     path(struct_name)
   end
 
@@ -153,6 +162,15 @@ class CrystalLib::TypeMapper
     crystal_name = crystal_type_name(name)
     @pending_definitions << Crystal::TypeDef.new(crystal_name, type)
     path(crystal_name)
+  end
+
+  def expand_pending_structs
+    while pending_struct = @pending_structs.pop?
+      fields = pending_struct.clang_type.fields.map do |field|
+        Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)) as Crystal::ASTNode
+      end
+      pending_struct.crystal_node.body = Crystal::Expressions.from(fields)
+    end
   end
 
   def crystal_type_name(name)
