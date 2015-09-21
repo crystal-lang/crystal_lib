@@ -19,12 +19,11 @@ class CrystalLib::TypeMapper
 
   def map_internal(type : PrimitiveType)
     case type.kind
-    when PrimitiveType::Kind::Void
+    when .void?
       path "Void"
-    when PrimitiveType::Kind::Char_S,
-         PrimitiveType::Kind::SChar
+    when .char_s?, .s_char?
       path ["LibC", "Char"]
-    when PrimitiveType::Kind::UChar
+    when .u_char?
       path ["LibC", "UInt8"]
     when PrimitiveType::Kind::Bool,
          PrimitiveType::Kind::Int,

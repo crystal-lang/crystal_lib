@@ -30,19 +30,19 @@ class CrystalLib::Parser
 
   def visit(cursor)
     case cursor.kind
-    when Clang::Cursor::Kind::MacroDefinition
+    when .macro_definition?
       visit_macro_definition(cursor)
-    when Clang::Cursor::Kind::VarDecl
+    when .var_decl?
       visit_var_declaration(cursor)
-    when Clang::Cursor::Kind::FunctionDecl
+    when .function_decl?
       visit_function_declaration(cursor)
-    when Clang::Cursor::Kind::StructDecl
+    when .struct_decl?
       visit_struct_or_union_declaration(cursor, :struct)
-    when Clang::Cursor::Kind::UnionDecl
+    when .union_decl?
       visit_struct_or_union_declaration(cursor, :union)
-    when Clang::Cursor::Kind::TypedefDecl
+    when .typedef_decl?
       visit_typedef_declaration(cursor)
-    when Clang::Cursor::Kind::EnumDecl
+    when .enum_decl?
       visit_enum_declaration(cursor)
     else
       # puts "#{cursor.kind}: #{cursor.spelling}"
