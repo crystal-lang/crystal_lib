@@ -186,7 +186,27 @@ class CrystalLib::TypeMapper
   end
 
   def crystal_type_name(name)
-    name.camelcase
+    underscore_index = nil
+    name.each_char_with_index do |char, i|
+      break if char != '_'
+      underscore_index = i
+    end
+
+    if underscore_index
+      name = name[underscore_index + 1 .. -1]
+    end
+
+    name = name.camelcase
+
+    if underscore_index
+      name = String.build do |str|
+        str << 'X'
+        (underscore_index + 1).times { str << '_' }
+        str << name
+      end
+    end
+
+    name
   end
 
   def crystal_field_name(name)

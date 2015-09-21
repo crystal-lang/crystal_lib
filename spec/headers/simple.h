@@ -79,4 +79,6 @@ struct forwarded_struct {
 
 void just_some_forwarded_struct(forwarded_struct_typedef* handle);
 
+typedef int __underscore;
+__underscore just_some_underscore();
 

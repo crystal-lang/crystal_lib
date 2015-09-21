@@ -162,4 +162,10 @@ describe LibBodyTransformer do
       type ForwardedStructTypedef = ForwardedStruct
       fun just_some_forwarded_struct(handle : ForwardedStructTypedef*)
     )
+
+  assert_transform "simple",
+    "fun just_some_underscore", %(
+      alias X__Underscore = LibC::Int
+      fun just_some_underscore : X__Underscore
+    )
 end
