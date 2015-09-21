@@ -153,4 +153,13 @@ describe LibBodyTransformer do
       end
       fun just_some_recursive_struct : SomeRecursiveStruct
     )
+
+  assert_transform "simple",
+    "fun just_some_forwarded_struct", %(
+      struct ForwardedStruct
+        x : LibC::Int
+      end
+      type ForwardedStructTypedef = ForwardedStruct
+      fun just_some_forwarded_struct(handle : ForwardedStructTypedef*)
+    )
 end

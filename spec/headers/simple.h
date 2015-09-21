@@ -69,4 +69,14 @@ typedef struct some_recursive_struct {
 } some_recursive_struct;
 some_recursive_struct just_some_recursive_struct();
 
+struct forwarded_struct;
+
+typedef struct forwarded_struct forwarded_struct_typedef;
+
+struct forwarded_struct {
+  int x;
+};
+
+void just_some_forwarded_struct(forwarded_struct_typedef* handle);
+
 

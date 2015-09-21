@@ -1,5 +1,8 @@
 module CrystalLib
   abstract class ASTNode
+    def unscoped_name
+      name
+    end
   end
 
   class Define < ASTNode

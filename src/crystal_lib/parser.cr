@@ -130,7 +130,17 @@ class CrystalLib::Parser
 
   def visit_struct_or_union_declaration(cursor, kind)
     name = name(cursor)
+
     struct_or_union = StructOrUnion.new(kind, name)
+
+    unless name.empty?
+      full_name = "#{kind} #{name}"
+      if (existing = named_nodes[full_name]?) && existing.is_a?(StructOrUnion)
+        struct_or_union = existing
+      else
+        named_nodes[full_name] = struct_or_union
+      end
+    end
 
     @cursor_hash_to_node[cursor.hash] = struct_or_union
 
@@ -202,6 +212,8 @@ class CrystalLib::Parser
       existing = @cursor_hash_to_node[type.cursor.hash]?
       if existing
         NodeRef.new(existing)
+      elsif existing = named_nodes[type.spelling]?
+        NodeRef.new(existing)
       else
         UnexposedType.new(type.cursor.spelling)
       end
@@ -246,6 +258,10 @@ class CrystalLib::Parser
 
   def named_types
     @named_types ||= {} of String => Type
+  end
+
+  def named_nodes
+    @named_nodes ||= {} of String => ASTNode
   end
 
   record ConstantArrayKey, object_id, size

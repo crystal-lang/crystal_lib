@@ -73,11 +73,17 @@ class CrystalLib::TypeMapper
     if internal_type.is_a?(NodeRef)
       internal_node = internal_type.node
       @typedef_name = type.name
-      return map_non_recursive(internal_node)
-    end
+      mapped = map_non_recursive(internal_node)
 
-    mapped = map_non_recursive(internal_type)
-    declare_alias(type.name, mapped)
+      if internal_type.node.name.empty? || type.name == internal_type.node.unscoped_name
+        return mapped
+      end
+
+      declare_typedef(type.name, mapped)
+    else
+      mapped = map_non_recursive(internal_type)
+      declare_alias(type.name, mapped)
+    end
   end
 
   def map_internal(type : FunctionType)

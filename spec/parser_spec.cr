@@ -177,6 +177,15 @@ describe Parser do
     values[2].value.should eq(11)
   end
 
+  it "parses forward declared struct" do
+    nodes = parse("struct point; typedef struct point spoint; struct point { int x; };")
+    typedef_type = nodes[-2] as Typedef
+    node_ref = (typedef_type.type as NodeRef)
+    node = node_ref.node as StructOrUnion
+    node.name.should eq("struct point")
+    node.fields.size.should eq(1)
+  end
+
   describe "types" do
     it "parses primitive" do
       nodes = parse("int some_var;")
