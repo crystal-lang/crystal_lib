@@ -36,7 +36,8 @@ class CrystalLib::TypeMapper
          PrimitiveType::Kind::ULongLong,
          PrimitiveType::Kind::Float,
          PrimitiveType::Kind::Double,
-         PrimitiveType::Kind::LongDouble
+         PrimitiveType::Kind::LongDouble,
+         PrimitiveType::Kind::WChar
       path ["LibC", type.kind.to_s]
     else
       raise "Unsupported primitive kind: #{type.kind}"

@@ -232,8 +232,13 @@ class CrystalLib::Parser
          PrimitiveType::Kind::ULongLong,
          PrimitiveType::Kind::Float,
          PrimitiveType::Kind::Double,
-         PrimitiveType::Kind::LongDouble
+         PrimitiveType::Kind::LongDouble,
+         PrimitiveType::Kind::WChar
       primitive_type(type.kind)
+    when PrimitiveType::Kind::Record,
+         PrimitiveType::Kind::Dependent
+      # Skip these for now. If they are needed we'll analyze them at that time
+      primitive_type(PrimitiveType::Kind::Invalid)
     else
       raise "Don't know how to convert #{type.spelling} (#{type.kind})"
     end
