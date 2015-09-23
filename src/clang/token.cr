@@ -11,7 +11,7 @@ struct Clang::Token
   end
 
   def spelling
-    String.new LibClang.get_token_spelling(@tokenization.translation_unit, self)
+    Clang.string(LibClang.get_token_spelling(@tokenization.translation_unit, self))
   end
 
   def location

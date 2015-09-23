@@ -29,11 +29,11 @@ struct Clang::Cursor
   end
 
   def display_name
-    String.new(LibClang.get_cursor_display_name(self))
+    Clang.string(LibClang.get_cursor_display_name(self))
   end
 
   def spelling
-    String.new(LibClang.get_cursor_spelling(self))
+    Clang.string(LibClang.get_cursor_spelling(self))
   end
 
   def location

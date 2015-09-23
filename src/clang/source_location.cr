@@ -8,7 +8,7 @@ struct Clang::SourceLocation
 
   def file_location
     LibClang.get_file_location(self, out file, out line, out column, out offset)
-    filename = file ? String.new(LibClang.get_file_name(file)) : nil
+    filename = file ? Clang.string(LibClang.get_file_name(file)) : nil
     FileLocation.new filename, line, column, offset
   end
 

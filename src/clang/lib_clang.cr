@@ -45,6 +45,11 @@ lib LibClang
 
   alias CursorKind = Clang::Cursor::Kind
 
+  struct String
+    data : Void*
+    private_flags : UInt32
+  end
+
   fun create_index = clang_createIndex(excludeDeclarationsFromPCH : Int32, displayDiagnostics : Int32) : Index
   fun parse_translation_unit2 = clang_parseTranslationUnit2(idx : Index,
                                                           source_filename : UInt8*,
@@ -67,7 +72,7 @@ lib LibClang
   fun get_num_diagnostics = clang_getNumDiagnostics(TranslationUnit) : UInt32
   fun get_cursor_kind = clang_getCursorKind(Cursor) : CursorKind
   fun get_cursor_type = clang_getCursorType(Cursor) : Type
-  fun get_type_spelling = clang_getTypeSpelling(Type) : UInt8*
+  fun get_type_spelling = clang_getTypeSpelling(Type) : String
 
   fun is_declaration = clang_isDeclaration(CursorKind) : UInt32
   fun is_reference = clang_isReference(CursorKind) : UInt32
@@ -80,8 +85,8 @@ lib LibClang
   fun is_unexposed = clang_isUnexposed(CursorKind) : UInt32
 
   fun get_canonical_type = clang_getCanonicalType(Type) : Type
-  fun get_cursor_spelling = clang_getCursorSpelling(Cursor) : UInt8*
-  fun get_cursor_display_name = clang_getCursorDisplayName(Cursor) : UInt8*
+  fun get_cursor_spelling = clang_getCursorSpelling(Cursor) : String
+  fun get_cursor_display_name = clang_getCursorDisplayName(Cursor) : String
   fun get_cursor_location = clang_getCursorLocation(Cursor) : SourceLocation
   fun get_cursor_result_type = clang_getCursorResultType(Cursor) : Type
   fun location_is_from_main_file = clang_Location_isFromMainFile(SourceLocation) : Int32
@@ -95,11 +100,11 @@ lib LibClang
                                           line : UInt32*,
                                           column : UInt32*,
                                           offset : UInt32*)
-  fun get_file_name = clang_getFileName(file : File) : UInt8*
+  fun get_file_name = clang_getFileName(file : File) : String
 
   fun tokenize = clang_tokenize(TranslationUnit, SourceRange, Token**, UInt32*)
   fun get_token_kind = clang_getTokenKind(Token) : Clang::Token::Kind
-  fun get_token_spelling = clang_getTokenSpelling(TranslationUnit, Token) : UInt8*
+  fun get_token_spelling = clang_getTokenSpelling(TranslationUnit, Token) : String
   fun get_typedef_decl_underlying_type = clang_getTypedefDeclUnderlyingType(Cursor) : Type
   fun get_enum_decl_integer_type = clang_getEnumDeclIntegerType(Cursor) : Type
   fun get_enum_constant_decl_value = clang_getEnumConstantDeclValue(Cursor) : Int64
@@ -113,4 +118,11 @@ lib LibClang
   fun get_arg_type = clang_getArgType(Type, UInt32) : Type
   fun cursor_is_variadic = clang_Cursor_isVariadic(Cursor) : UInt32
   fun hash_cursor = clang_hashCursor(Cursor) : UInt32
+
+  fun get_cstring = clang_getCString(String) : LibC::Char*
+
+  fun dispose_index = clang_disposeIndex(Index)
+  fun dispose_translation_unit = clang_disposeTranslationUnit(TranslationUnit)
+  fun dispose_string = clang_disposeString(String)
+  fun dispose_tokens = clang_disposeTokens(tu : TranslationUnit, tokens : Token*, num_tokens : UInt32)
 end

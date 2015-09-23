@@ -1,4 +1,4 @@
-struct Clang::TranslationUnit
+class Clang::TranslationUnit
   def initialize(@tu)
   end
 
@@ -17,5 +17,9 @@ struct Clang::TranslationUnit
 
   def to_unsafe
     @tu
+  end
+
+  def finalize
+    LibClang.dispose_translation_unit(@tu)
   end
 end

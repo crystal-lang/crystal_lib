@@ -3,7 +3,7 @@ struct Clang::Type
   end
 
   def spelling
-    String.new(LibClang.get_type_spelling(self))
+    Clang.string(LibClang.get_type_spelling(self))
   end
 
   def canonical_type
