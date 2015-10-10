@@ -109,6 +109,15 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
+                   "fun just_some_enum_3", %(
+      enum SomeEnum3
+        NodePara = 1
+        NodeLink = 2
+      end
+      fun just_some_enum_3 : SomeEnum3
+    )
+
+  assert_transform "simple",
                    "fun just_some_struct_1", %(
       struct SomeStruct1
         x : LibC::Int

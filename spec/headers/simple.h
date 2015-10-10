@@ -45,6 +45,12 @@ enum some_enum_2 {
 };
 enum some_enum_2 just_some_enum_2();
 
+enum some_enum_3 {
+  node_para = 1,
+  NODE_LINK = 2
+};
+enum some_enum_3 just_some_enum_3();
+
 typedef struct { int x; } some_struct_1;
 some_struct_1 just_some_struct_1();
 
