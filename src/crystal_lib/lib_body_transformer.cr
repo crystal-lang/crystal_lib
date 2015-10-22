@@ -15,7 +15,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     raise "can't find function #{name}" unless func.is_a?(CrystalLib::Function)
 
     node.args = func.args.map_with_index do |arg, i|
-      Crystal::Arg.new(arg.name.empty? ? "x#{i}" : arg.name, restriction: map_type(arg.type))
+      Crystal::Arg.new(arg.name.empty? ? "x#{i}" : @mapper.crystal_arg_name(arg.name), restriction: map_type(arg.type))
     end
     return_type = map_type(func.return_type)
 

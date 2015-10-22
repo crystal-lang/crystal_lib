@@ -3,7 +3,7 @@ class CrystalLib::TypeMapper
 
   getter pending_definitions
 
-  def initialize
+  def initialize(@prefixes = nil)
     @pending_definitions = [] of Crystal::ASTNode
     @pending_structs = [] of PendingStruct
     @generated = {} of typeof(object_id) => Crystal::ASTNode
@@ -24,7 +24,7 @@ class CrystalLib::TypeMapper
     when .char_s?, .s_char?
       path ["LibC", "Char"]
     when .u_char?
-      path ["LibC", "UInt8"]
+      path ["UInt8"]
     when PrimitiveType::Kind::Bool,
          PrimitiveType::Kind::Int,
          PrimitiveType::Kind::Short,
@@ -112,18 +112,24 @@ class CrystalLib::TypeMapper
     enum_members = type.values.map do |value|
       Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(value.value)) as Crystal::ASTNode
     end
-    enum_def = Crystal::EnumDef.new(enum_name, enum_members)
+    enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members)
     @pending_definitions << enum_def
     path(enum_name)
   end
 
   def map_internal(type : CrystalLib::StructOrUnion)
     struct_name = crystal_type_name(check_anonymous_name(type.unscoped_name))
-    klass = type.kind == :struct ? Crystal::StructDef : Crystal::UnionDef
-    struct_def = klass.new(struct_name)
 
-    # Leave struct body for later, because of possible recursiveness
-    @pending_structs << PendingStruct.new(struct_def, type)
+    if type.fields.empty?
+      # For an empty struct we just return an alias to Void
+      struct_def = Crystal::Alias.new(struct_name, path(["Void"]))
+    else
+      klass = type.kind == :struct ? Crystal::StructDef : Crystal::UnionDef
+      struct_def = klass.new(struct_name)
+
+      # Leave struct body for later, because of possible recursiveness
+      @pending_structs << PendingStruct.new(struct_def, type)
+    end
 
     @pending_definitions << struct_def unless @generated.has_key?(type.object_id)
 
@@ -187,6 +193,8 @@ class CrystalLib::TypeMapper
   end
 
   def crystal_type_name(name)
+    name = match_prefix(name)
+
     underscore_index = nil
     name.each_char_with_index do |char, i|
       break if char != '_'
@@ -194,7 +202,7 @@ class CrystalLib::TypeMapper
     end
 
     if underscore_index
-      name = name[underscore_index + 1 .. -1]
+      name = name[underscore_index + 1..-1]
     end
 
     name = name.camelcase
@@ -210,7 +218,24 @@ class CrystalLib::TypeMapper
     name
   end
 
+  def crystal_arg_name(name)
+    crystal_field_name(name)
+  end
+
+  def crystal_fun_name(name)
+    crystal_field_name(name)
+  end
+
   def crystal_field_name(name)
-    name.underscore
+    match_prefix(name).underscore
+  end
+
+  def match_prefix(name)
+    @prefixes.try &.each do |prefix|
+      if name.starts_with?(prefix)
+        return name[prefix.size..-1]
+      end
+    end
+    name
   end
 end

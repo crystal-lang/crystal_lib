@@ -14,15 +14,22 @@ class CrystalLib::LibTransformer < Crystal::Transformer
   end
 
   def transform(node : Crystal::LibDef)
-    headers, flags = process_includes
+    headers, flags, prefixes = process_includes
     nodes = CrystalLib::Parser.parse(headers, flags)
-    node.body = node.body.transform CrystalLib::LibBodyTransformer.new(nodes)
+
+    if prefixes.empty?
+      node.body = node.body.transform CrystalLib::LibBodyTransformer.new(nodes)
+    else
+      node.body = CrystalLib::PrefixImporter.import(nodes, prefixes)
+    end
+
     node
   end
 
   def process_includes
-    headers = StringIO.new
+    headers = MemoryIO.new
     flags = [] of String
+    prefixes = [] of String
 
     @includes.each do |attr|
       attr.args.each do |arg|
@@ -43,12 +50,29 @@ class CrystalLib::LibTransformer < Crystal::Transformer
           else
             value.raise "Include flags value must be a string literal"
           end
+        when "prefix"
+          value = named_arg.value
+          case value
+          when Crystal::StringLiteral
+            prefixes << value.value
+          when Crystal::ArrayLiteral
+            value.elements.each do |value2|
+              case value2
+              when Crystal::StringLiteral
+                prefixes << value2.value
+              else
+                value.raise "Include prefix value must be a string literal or array literal of string literals"
+              end
+            end
+          else
+            value.raise "Include prefix value must be a string literal or array literal"
+          end
         else
           named_arg.raise "unknown named argument for Include attribtue"
         end
       end
     end
 
-    {headers.to_s, flags}
+    {headers.to_s, flags, prefixes}
   end
 end
