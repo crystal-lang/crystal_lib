@@ -67,7 +67,7 @@ class CrystalLib::PrefixImporter
   end
 
   def process(node : StructOrUnion)
-    name = match_prefix(node)
+    name = match_prefix(node.unscoped_name)
     return unless name
 
     @mapper.map(node)
@@ -90,10 +90,14 @@ class CrystalLib::PrefixImporter
     @mapper.pending_definitions.clear
   end
 
-  def match_prefix(node)
+  def match_prefix(node : CrystalLib::ASTNode)
+    match_prefix(node.name)
+  end
+
+  def match_prefix(name : String)
     @prefixes.each do |prefix|
-      if node.name.starts_with?(prefix)
-        return node.name[prefix.size..-1]
+      if name.starts_with?(prefix)
+        return name[prefix.size..-1]
       end
     end
     nil
