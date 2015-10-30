@@ -205,7 +205,7 @@ class CrystalLib::TypeMapper
       name = name[underscore_index + 1..-1]
     end
 
-    name = name.camelcase
+    name = name.downcase.camelcase
 
     if underscore_index
       name = String.build do |str|
