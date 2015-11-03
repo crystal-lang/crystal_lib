@@ -85,6 +85,7 @@ class CrystalLib::Parser
           str << spelling
         else
           # Nothing
+
         end
       end
     end
@@ -207,7 +208,11 @@ class CrystalLib::Parser
       incomplete_array_type(type(type.array_element_type))
     when Clang::Type::Kind::Typedef
       spelling = type.spelling.gsub("const ", "")
-      named_types[spelling]? || primitive_type(Clang::Type::Kind::Invalid)
+      if !named_types.has_key?(spelling) && spelling == "__builtin_va_list"
+        primitive_type(PrimitiveType::Kind::VaList)
+      else
+        named_types[spelling]? || primitive_type(Clang::Type::Kind::Invalid)
+      end
     when Clang::Type::Kind::Unexposed
       existing = @cursor_hash_to_node[type.cursor.hash]?
       if existing
@@ -217,28 +222,28 @@ class CrystalLib::Parser
       else
         UnexposedType.new(type.cursor.spelling)
       end
-    when PrimitiveType::Kind::Void,
-         PrimitiveType::Kind::Bool,
-         PrimitiveType::Kind::Char_S,
-         PrimitiveType::Kind::SChar,
-         PrimitiveType::Kind::UChar,
-         PrimitiveType::Kind::Int,
-         PrimitiveType::Kind::Short,
-         PrimitiveType::Kind::Long,
-         PrimitiveType::Kind::LongLong,
-         PrimitiveType::Kind::UInt,
-         PrimitiveType::Kind::UShort,
-         PrimitiveType::Kind::ULong,
-         PrimitiveType::Kind::ULongLong,
-         PrimitiveType::Kind::Float,
-         PrimitiveType::Kind::Double,
-         PrimitiveType::Kind::LongDouble,
-         PrimitiveType::Kind::WChar
+    when Clang::Type::Kind::Void,
+         Clang::Type::Kind::Bool,
+         Clang::Type::Kind::Char_S,
+         Clang::Type::Kind::SChar,
+         Clang::Type::Kind::UChar,
+         Clang::Type::Kind::Int,
+         Clang::Type::Kind::Short,
+         Clang::Type::Kind::Long,
+         Clang::Type::Kind::LongLong,
+         Clang::Type::Kind::UInt,
+         Clang::Type::Kind::UShort,
+         Clang::Type::Kind::ULong,
+         Clang::Type::Kind::ULongLong,
+         Clang::Type::Kind::Float,
+         Clang::Type::Kind::Double,
+         Clang::Type::Kind::LongDouble,
+         Clang::Type::Kind::WChar
       primitive_type(type.kind)
-    when PrimitiveType::Kind::Record,
-         PrimitiveType::Kind::Dependent
+    when Clang::Type::Kind::Record,
+         Clang::Type::Kind::Dependent
       # Skip these for now. If they are needed we'll analyze them at that time
-      primitive_type(PrimitiveType::Kind::Invalid)
+      primitive_type(Clang::Type::Kind::Invalid)
     else
       raise "Don't know how to convert #{type.spelling} (#{type.kind})"
     end
@@ -250,7 +255,7 @@ class CrystalLib::Parser
   end
 
   def primitive_types
-    @primitive_types ||= {} of Clang::Type::Kind => Type
+    @primitive_types ||= {} of PrimitiveType::Kind => Type
   end
 
   def pointer_types
@@ -286,7 +291,8 @@ class CrystalLib::Parser
   end
 
   def primitive_type(kind)
-    primitive_types[kind] ||= PrimitiveType.new(PrimitiveType::Kind.new(kind.value))
+    kind = PrimitiveType::Kind.new(kind.value)
+    primitive_types[kind] ||= PrimitiveType.new(kind)
   end
 
   def pointer_type(type)

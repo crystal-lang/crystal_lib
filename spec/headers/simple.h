@@ -16,6 +16,7 @@ float just_float();
 double just_double();
 long double just_long_double();
 size_t just_size_t();
+__builtin_va_list* just___builtin_va_list();
 void function_pointer(int (*x)(float, char));
 
 typedef int (*fun_ptr)(float, char);
