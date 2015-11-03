@@ -151,6 +151,14 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
+    "fun just_some_struct_with_end", %(
+      struct StructWithEnd
+        _end : LibC::Int
+      end
+      fun just_some_struct_with_end(handle : StructWithEnd*)
+    )
+
+  assert_transform "simple",
     "fun just_some_incomplete_array", %(
       fun just_some_incomplete_array(argv : LibC::Char**)
     )

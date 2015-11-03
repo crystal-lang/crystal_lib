@@ -86,6 +86,11 @@ struct forwarded_struct {
 
 void just_some_forwarded_struct(forwarded_struct_typedef* handle);
 
+struct struct_with_end {
+  int end;
+};
+void just_some_struct_with_end(struct struct_with_end* handle);
+
 typedef int __underscore;
 __underscore just_some_underscore();
 

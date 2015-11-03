@@ -228,7 +228,9 @@ class CrystalLib::TypeMapper
   end
 
   def crystal_field_name(name)
-    match_prefix(name).underscore
+    name = match_prefix(name).underscore
+    name = "_end" if name == "end"
+    name
   end
 
   def match_prefix(name)
