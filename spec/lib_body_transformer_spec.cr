@@ -110,7 +110,7 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
-                   "fun just_some_enum_3", %(
+    "fun just_some_enum_3", %(
       enum SomeEnum3
         NodePara = 1
         NodeLink = 2
@@ -185,5 +185,19 @@ describe LibBodyTransformer do
     "fun just_some_underscore", %(
       alias X__Underscore = LibC::Int
       fun just_some_underscore : X__Underscore
+    )
+
+  assert_transform "simple",
+    "fun just_some_struct_with_nest", %(
+      struct StructWithNest
+        nested : StructWithNestNested
+      end
+
+      struct StructWithNestNested
+        x : LibC::Int
+        y : LibC::Int
+      end
+
+      fun just_some_struct_with_nest(handle : StructWithNest*)
     )
 end

@@ -94,3 +94,11 @@ void just_some_struct_with_end(struct struct_with_end* handle);
 typedef int __underscore;
 __underscore just_some_underscore();
 
+struct struct_with_nest {
+  struct {
+    int x;
+    int y;
+  } nested;
+};
+void just_some_struct_with_nest(struct struct_with_nest* handle);
+

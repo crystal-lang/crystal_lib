@@ -7,6 +7,18 @@ class CrystalLib::TypeMapper
     @pending_definitions = [] of Crystal::ASTNode
     @pending_structs = [] of PendingStruct
     @generated = {} of typeof(object_id) => Crystal::ASTNode
+
+    # When completing a struct's fields we keep that struct and the field name in
+    # case we find a nested struct, such as in:#
+    #
+    # struct foo {
+    #   struct {
+    #     int x;
+    #   } point;
+    # };
+    #
+    # In that case we want to generate Foo and FooPoint structs.
+    @structs_stack = [] of {PendingStruct, String}
   end
 
   def map(type)
@@ -76,6 +88,7 @@ class CrystalLib::TypeMapper
       internal_node = internal_type.node
       @typedef_name = type.name
       mapped = map_non_recursive(internal_node)
+      @typedef_name = nil
 
       if internal_type.node.name.empty? || type.name == internal_type.node.unscoped_name
         return mapped
@@ -169,7 +182,17 @@ class CrystalLib::TypeMapper
   end
 
   def check_anonymous_name(name)
-    name.empty? ? @typedef_name.not_nil! : name
+    return name unless name.empty?
+
+    typedef_name = @typedef_name
+    return typedef_name if typedef_name
+
+    unless @structs_stack.empty?
+      pending_struct, name = @structs_stack.last
+      return "#{pending_struct.clang_type.unscoped_name}_#{name}"
+    end
+
+    raise "Bug: missing struct name"
   end
 
   def declare_alias(name, type)
@@ -187,7 +210,10 @@ class CrystalLib::TypeMapper
   def expand_pending_structs
     while pending_struct = @pending_structs.pop?
       fields = pending_struct.clang_type.fields.map do |field|
-        Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)) as Crystal::ASTNode
+        @structs_stack.push({pending_struct, field.name})
+        arg = Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)) as Crystal::ASTNode
+        @structs_stack.pop
+        arg
       end
       pending_struct.crystal_node.body = Crystal::Expressions.from(fields)
     end

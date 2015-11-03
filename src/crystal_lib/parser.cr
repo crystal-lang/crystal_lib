@@ -150,7 +150,7 @@ class CrystalLib::Parser
         struct_or_union.fields << visit_var_declaration(subcursor)
       end
 
-      Clang::VisitResult::Recurse
+      Clang::VisitResult::Continue
     end
 
     struct_or_union
@@ -169,7 +169,7 @@ class CrystalLib::Parser
         enum_decl.values << visit_enum_constant_declaration(subcursor)
       end
 
-      Clang::VisitResult::Recurse
+      Clang::VisitResult::Continue
     end
 
     enum_decl
@@ -220,7 +220,15 @@ class CrystalLib::Parser
       elsif existing = named_nodes[type.spelling]?
         NodeRef.new(existing)
       else
-        UnexposedType.new(type.cursor.spelling)
+        definition = type.cursor.definition
+        case definition.kind
+        when .struct_decl?
+          NodeRef.new(visit_struct_or_union_declaration(definition, :struct))
+        when .union_decl?
+          NodeRef.new(visit_struct_or_union_declaration(definition, :union))
+        else
+          UnexposedType.new(type.cursor.spelling)
+        end
       end
     when Clang::Type::Kind::Void,
          Clang::Type::Kind::Bool,

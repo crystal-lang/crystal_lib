@@ -116,6 +116,25 @@ describe Parser do
     fields.size.should eq(2)
   end
 
+  it "parses struct with nested struct" do
+    nodes = parse("struct point { struct { int x; int y; } nested; };")
+    type = nodes.last as StructOrUnion
+    type.kind.should eq(:struct)
+    type.name.should eq("struct point")
+    fields = type.fields
+    fields.size.should eq(1)
+
+    subtype = fields[0].type as NodeRef
+    subtype = subtype.node as StructOrUnion
+    subtype.kind.should eq(:struct)
+    fields = subtype.fields
+    fields.size.should eq(2)
+    fields[0].name.should eq("x")
+    fields[0].type.should eq(PrimitiveType.int)
+    fields[1].name.should eq("y")
+    fields[1].type.should eq(PrimitiveType.int)
+  end
+
   it "parses typedef" do
     nodes = parse("typedef int foo;")
     typedef = nodes.last as Typedef

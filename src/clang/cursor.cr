@@ -4,6 +4,10 @@ struct Clang::Cursor
   def initialize(@cursor)
   end
 
+  def definition
+    Cursor.new LibClang.get_cursor_definition(self)
+  end
+
   def kind
     LibClang.get_cursor_kind(self)
   end

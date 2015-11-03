@@ -122,6 +122,7 @@ lib LibClang
   fun get_arg_type = clang_getArgType(Type, UInt32) : Type
   fun cursor_is_variadic = clang_Cursor_isVariadic(Cursor) : UInt32
   fun hash_cursor = clang_hashCursor(Cursor) : UInt32
+  fun get_cursor_definition = clang_getCursorDefinition(Cursor) : Cursor
 
   fun get_cstring = clang_getCString(String) : LibC::Char*
 
