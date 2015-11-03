@@ -112,71 +112,11 @@ class CrystalLib::PrefixImporter
   end
 
   def result
-    @nodes.sort! do |n1, n2|
-      compare(n1, n2)
-    end
+    # Put external vars at the end
+    external_vars = @nodes.select { |var| var.is_a?(Crystal::ExternalVar) }
+    @nodes.reject! { |var| var.is_a?(Crystal::ExternalVar) }
+    @nodes.concat external_vars
 
     Crystal::Expressions.from(@nodes)
-  end
-
-  def compare(n1 : Crystal::FunDef, n2 : Crystal::FunDef)
-    n1.name <=> n2.name
-  end
-
-  def compare(n1 : Crystal::StructOrUnionDef, n2 : Crystal::StructOrUnionDef)
-    n1.name <=> n2.name
-  end
-
-  def compare(n1 : Crystal::ExternalVar, n2 : Crystal::ExternalVar)
-    n1.name <=> n2.name
-  end
-
-  def compare(n1 : Crystal::EnumDef, n2 : Crystal::EnumDef)
-    n1.name.names.first <=> n2.name.names.first
-  end
-
-  def compare(n1 : Crystal::Assign, n2 : Crystal::Assign)
-    compare(n1.target, n2.target)
-  end
-
-  def compare(n1 : Crystal::Path, n2 : Crystal::Path)
-    n1.names.first <=> n2.names.first
-  end
-
-  def compare(n1 : Crystal::TypeDef, n2 : Crystal::TypeDef)
-    n1.name <=> n2.name
-  end
-
-  def compare(n1 : Crystal::Alias, n2 : Crystal::Alias)
-    n1.name <=> n2.name
-  end
-
-  def compare(n1, n2)
-    if n1.class == n2.class
-      raise "Bug: shoudln't compare #{n1.class} vs. #{n2.class}"
-    else
-      category(n1) <=> category(n2)
-    end
-  end
-
-  def category(node)
-    case node
-    when Crystal::Assign
-      0
-    when Crystal::EnumDef
-      1
-    when Crystal::TypeDef
-      2
-    when Crystal::Alias
-      3
-    when Crystal::StructOrUnionDef
-      4
-    when Crystal::FunDef
-      5
-    when Crystal::ExternalVar
-      6
-    else
-      7
-    end
   end
 end
