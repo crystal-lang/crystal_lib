@@ -56,20 +56,20 @@ lib LibClang
 
   fun create_index = clang_createIndex(excludeDeclarationsFromPCH : Int32, displayDiagnostics : Int32) : Index
   fun parse_translation_unit2 = clang_parseTranslationUnit2(idx : Index,
-                                                          source_filename : UInt8*,
-                                                          command_line_args : UInt8**,
-                                                          num_command_line_args : Int32,
-                                                          unsaved_files : UnsavedFile*,
-                                                          num_unsaved_files : UInt32,
-                                                          options : UInt32,
-                                                          tu : TranslationUnit*) : Int32
+                                                            source_filename : UInt8*,
+                                                            command_line_args : UInt8**,
+                                                            num_command_line_args : Int32,
+                                                            unsaved_files : UnsavedFile*,
+                                                            num_unsaved_files : UInt32,
+                                                            options : UInt32,
+                                                            tu : TranslationUnit*) : Int32
   fun create_translation_unit_from_source_file = clang_createTranslationUnitFromSourceFile(
-                                                    Index,
-                                                    source_filename : UInt8*,
-                                                    num_clang_command_line_args : Int32,
-                                                    clang_command_line_args : UInt8**,
-                                                    num_unsaved_files : UInt32,
-                                                    unsaved_files : UnsavedFile*) : TranslationUnit
+                                                                                           Index,
+                                                                                           source_filename : UInt8*,
+                                                                                           num_clang_command_line_args : Int32,
+                                                                                           clang_command_line_args : UInt8**,
+                                                                                           num_unsaved_files : UInt32,
+                                                                                           unsaved_files : UnsavedFile*) : TranslationUnit
 
   fun get_translation_unit_cursor = clang_getTranslationUnitCursor(TranslationUnit) : Cursor
   fun visit_children = clang_visitChildren(Cursor, CursorVisitor, client_data : Void*) : UInt32
@@ -100,10 +100,10 @@ lib LibClang
   fun get_range_end = clang_getRangeEnd(SourceRange) : SourceLocation
 
   fun get_file_location = clang_getFileLocation(location : SourceLocation,
-                                          file : File*,
-                                          line : UInt32*,
-                                          column : UInt32*,
-                                          offset : UInt32*)
+                                                file : File*,
+                                                line : UInt32*,
+                                                column : UInt32*,
+                                                offset : UInt32*)
   fun get_file_name = clang_getFileName(file : File) : String
 
   fun tokenize = clang_tokenize(TranslationUnit, SourceRange, Token**, UInt32*)

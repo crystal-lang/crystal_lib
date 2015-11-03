@@ -165,5 +165,3 @@ module CrystalLib
     def_equals_and_hash name, value
   end
 end
-
-

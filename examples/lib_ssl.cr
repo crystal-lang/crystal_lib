@@ -5,7 +5,7 @@
 lib LibSSL
   fun ssl_load_error_strings = SSL_load_error_strings
   fun ssl_library_init = SSL_library_init
-  fun sslv23_method  = SSLv23_method
+  fun sslv23_method = SSLv23_method
   fun ssl_ctx_new = SSL_CTX_new
   fun ssl_ctx_free = SSL_CTX_free
   fun ssl_new = SSL_new
