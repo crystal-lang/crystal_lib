@@ -154,6 +154,10 @@ class CrystalLib::TypeMapper
     path("Void")
   end
 
+  def map_internal(type : ErrorType)
+    raise "Couldn't import type: #{type}"
+  end
+
   def map_internal(type)
     raise "Unsupported type: #{type}, #{type.class}"
   end

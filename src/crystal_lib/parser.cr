@@ -46,6 +46,7 @@ class CrystalLib::Parser
       visit_enum_declaration(cursor)
     else
       # puts "#{cursor.kind}: #{cursor.spelling}"
+
     end
   end
 
@@ -207,11 +208,13 @@ class CrystalLib::Parser
     when Clang::Type::Kind::IncompleteArray
       incomplete_array_type(type(type.array_element_type))
     when Clang::Type::Kind::Typedef
-      spelling = type.spelling.gsub("const ", "")
+      spelling = type.spelling
+      spelling = spelling.gsub("const ", "")
+                         .gsub("volatile ", "")
       if !named_types.has_key?(spelling) && spelling == "__builtin_va_list"
         primitive_type(PrimitiveType::Kind::VaList)
       else
-        named_types[spelling]? || primitive_type(Clang::Type::Kind::Invalid)
+        named_types[spelling]? || error_type(spelling)
       end
     when Clang::Type::Kind::Unexposed
       existing = @cursor_hash_to_node[type.cursor.hash]?
@@ -251,7 +254,7 @@ class CrystalLib::Parser
     when Clang::Type::Kind::Record,
          Clang::Type::Kind::Dependent
       # Skip these for now. If they are needed we'll analyze them at that time
-      primitive_type(Clang::Type::Kind::Invalid)
+      error_type(type.spelling)
     else
       raise "Don't know how to convert #{type.spelling} (#{type.kind})"
     end
@@ -298,6 +301,10 @@ class CrystalLib::Parser
     @function_types ||= {} of FunctionKey => Type
   end
 
+  def error_types
+    @error_types ||= {} of String => Type
+  end
+
   def primitive_type(kind)
     kind = PrimitiveType::Kind.new(kind.value)
     primitive_types[kind] ||= PrimitiveType.new(kind)
@@ -321,5 +328,9 @@ class CrystalLib::Parser
 
   def function_type(inputs, output)
     function_types[FunctionKey.new(inputs.map(&.object_id), output.object_id)] ||= FunctionType.new(inputs, output)
+  end
+
+  def error_type(name)
+    error_types[name] ||= ErrorType.new(name)
   end
 end
