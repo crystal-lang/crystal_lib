@@ -3,7 +3,7 @@ class CrystalLib::TypeMapper
 
   getter pending_definitions
 
-  def initialize(@prefixes = nil)
+  def initialize(@prefix_matcher = nil)
     @pending_definitions = [] of Crystal::ASTNode
     @pending_structs = [] of PendingStruct
     @generated = {} of typeof(object_id) => Crystal::ASTNode
@@ -264,11 +264,6 @@ class CrystalLib::TypeMapper
   end
 
   def match_prefix(name)
-    @prefixes.try &.each do |prefix|
-      if name.starts_with?(prefix)
-        return name[prefix.size..-1]
-      end
-    end
-    name
+    @prefix_matcher.try(&.match(name)) || name
   end
 end

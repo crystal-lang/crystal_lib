@@ -1,15 +1,15 @@
 class CrystalLib::PrefixImporter
-  def self.import(nodes, prefixes)
-    importer = new prefixes
+  def self.import(nodes, prefix_matcher)
+    importer = new prefix_matcher
     nodes.each do |node|
       importer.process node
     end
     importer.result
   end
 
-  def initialize(@prefixes)
+  def initialize(@prefix_matcher)
     @nodes = [] of Crystal::ASTNode
-    @mapper = TypeMapper.new(@prefixes)
+    @mapper = TypeMapper.new(@prefix_matcher)
   end
 
   def process(node : Define)
@@ -95,12 +95,7 @@ class CrystalLib::PrefixImporter
   end
 
   def match_prefix(name : String)
-    @prefixes.each do |prefix|
-      if name.starts_with?(prefix)
-        return name[prefix.size..-1]
-      end
-    end
-    nil
+    @prefix_matcher.match(name)
   end
 
   def map_type(type)
