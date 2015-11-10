@@ -102,3 +102,11 @@ struct struct_with_nest {
 };
 void just_some_struct_with_nest(struct struct_with_nest* handle);
 
+typedef struct {
+  struct {
+    int x;
+    int y;
+  } nested;
+} struct_with_nest_2;
+
+void just_some_struct_with_nest_2(struct_with_nest_2* handle);

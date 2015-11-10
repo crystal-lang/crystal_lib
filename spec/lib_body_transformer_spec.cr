@@ -200,4 +200,18 @@ describe LibBodyTransformer do
 
       fun just_some_struct_with_nest(handle : StructWithNest*)
     )
+
+  assert_transform "simple",
+    "fun just_some_struct_with_nest_2", %(
+      struct StructWithNest2
+        nested : StructWithNest2Nested
+      end
+
+      struct StructWithNest2Nested
+        x : LibC::Int
+        y : LibC::Int
+      end
+
+      fun just_some_struct_with_nest_2(handle : StructWithNest2*)
+    )
 end

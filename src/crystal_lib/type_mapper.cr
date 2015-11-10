@@ -1,5 +1,5 @@
 class CrystalLib::TypeMapper
-  record PendingStruct, crystal_node, clang_type
+  record PendingStruct, crystal_node, clang_type, original_name
 
   getter pending_definitions
 
@@ -132,7 +132,8 @@ class CrystalLib::TypeMapper
   end
 
   def map_internal(type : CrystalLib::StructOrUnion)
-    struct_name = crystal_type_name(check_anonymous_name(type.unscoped_name))
+    untouched_struct_name = check_anonymous_name(type.unscoped_name)
+    struct_name = crystal_type_name(untouched_struct_name)
 
     if type.fields.empty?
       # For an empty struct we just return an alias to Void
@@ -142,7 +143,7 @@ class CrystalLib::TypeMapper
       struct_def = klass.new(struct_name)
 
       # Leave struct body for later, because of possible recursiveness
-      @pending_structs << PendingStruct.new(struct_def, type)
+      @pending_structs << PendingStruct.new(struct_def, type, untouched_struct_name)
     end
 
     @pending_definitions << struct_def unless @generated.has_key?(type.object_id)
@@ -193,7 +194,7 @@ class CrystalLib::TypeMapper
 
     unless @structs_stack.empty?
       pending_struct, name = @structs_stack.last
-      return "#{pending_struct.clang_type.unscoped_name}_#{name}"
+      return "#{pending_struct.original_name}_#{name}"
     end
 
     raise "Bug: missing struct name"
