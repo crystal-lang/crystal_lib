@@ -4,8 +4,8 @@ require "option_parser"
 output_file = ""
 OptionParser.parse! do |parser|
   parser.banner = "Usage: crystal_lib [arguments]"
-  parser.on("-o FILE", "--output=FILE", "Upcases the sallute") { |filename| output_file = filename }
-  parser.on("-h", "--help", "Show this help") { puts parser }
+  parser.on("-o FILE", "--output=FILE", "The file to output the generated code to.") { |filename| output_file = filename }
+  parser.on("-h", "--help", "Show this help") { puts parser; Process.exit(0) }
 end
 
 if output_file = ""
