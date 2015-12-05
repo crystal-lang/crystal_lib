@@ -7,9 +7,8 @@ OptionParser.parse! do |parser|
   parser.on("-o FILE", "--output=FILE", "The file to output the generated code to.") { |filename| output_file = filename }
   parser.on("-h", "--help", "Show this help") { puts parser; Process.exit(0) }
 end
-
-if output_file = ""
-  output_file = "output.cr"
+if output_file == ""
+ output_file = "output.cr"
 end
 
 node = Crystal::Parser.parse(ARGF.gets_to_end)
