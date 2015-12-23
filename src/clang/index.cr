@@ -10,7 +10,8 @@ class Clang::Index
   end
 
   def create_translation_unit_from_source_file(source : String, args = [] of String)
-    tu = LibClang.create_translation_unit_from_source_file(self, source, args.size, args.map &.cstr, 0, nil)
+    tu = LibClang.create_translation_unit_from_source_file(self, source,
+                                                           args.size, args.map &.to_unsafe, 0, nil)
     TranslationUnit.new tu
   end
 
