@@ -5,7 +5,7 @@ require "compiler/crystal/semantic/*"
 
 class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def initialize(nodes : Array(CrystalLib::ASTNode))
-    @nodes = nodes.index_by &.name
+    @nodes = nodes
     @mapper = TypeMapper.new
   end
 
@@ -32,13 +32,31 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     name = node.value.to_s
     match = find_node(name)
     raise "can't find constant #{name}" unless match.is_a?(Define)
+    value = match.value
+
+    if name == match.value
+      # macro definition references an enum value
+      if enum_value = find_enum_value(name)
+        value = enum_value.value.to_s
+      end
+    end
 
     begin
-      node.value = Crystal::Parser.parse(match.value)
+      node.value = Crystal::Parser.parse(value)
     rescue ex : Crystal::Exception
-      raise "can't parse value of constant #{name}: #{match.value}"
+      raise "can't parse value of constant #{name}: #{value}"
     end
     node
+  end
+
+  private def find_enum_value(name)
+    @nodes.each do |node|
+      next unless node.is_a?(CrystalLib::Enum)
+      node.values.each do |enum_value|
+        return enum_value if enum_value.name == name
+      end
+    end
+    nil
   end
 
   def transform(node : Crystal::ExternalVar)
@@ -56,7 +74,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   end
 
   def find_node(name)
-    @nodes[name]?
+    @nodes.find { |node| node.name == name }
   end
 
   def check_pending_definitions(node)

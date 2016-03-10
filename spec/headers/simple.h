@@ -52,6 +52,13 @@ enum some_enum_3 {
 };
 enum some_enum_3 just_some_enum_3();
 
+enum {
+  SOCK_STREAM = 1,
+  #define SOCK_STREAM SOCK_STREAM
+  SOCK_DGRAM = 2,
+  #define SOCK_DGRAM SOCK_DGRAM
+};
+
 typedef struct { int x; } some_struct_1;
 some_struct_1 just_some_struct_1();
 
