@@ -221,4 +221,9 @@ describe LibBodyTransformer do
 
       fun just_some_struct_with_nest_2(handle : StructWithNest2*)
     )
+
+  assert_transform "simple",
+    "fun inet_pton", %(
+      fun inet_pton(x0 : LibC::Int, x1 : LibC::Char*, x2 : Void*) : LibC::Int
+    )
 end

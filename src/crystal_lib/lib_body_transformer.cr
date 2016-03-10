@@ -12,6 +12,11 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def transform(node : Crystal::FunDef)
     name = node.real_name
     func = find_node name
+
+    while func.is_a?(CrystalLib::Define)
+      func = find_node(func.value)
+    end
+
     raise "can't find function #{name}" unless func.is_a?(CrystalLib::Function)
 
     node.args = func.args.map_with_index do |arg, i|

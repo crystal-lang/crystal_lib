@@ -117,3 +117,6 @@ typedef struct {
 } struct_with_nest_2;
 
 void just_some_struct_with_nest_2(struct_with_nest_2* handle);
+
+#define inet_pton __inet_pton
+int __inet_pton(int, char*, void*);
