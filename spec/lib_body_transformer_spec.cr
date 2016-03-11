@@ -119,11 +119,18 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
-    "fun just_some_struct_1", %(
-      struct SomeStruct1
-        x : LibC::Int
+    "fun just_some_enum_3", %(
+      enum SomeEnum3
+        NodePara = 1
+        NodeLink = 2
       end
-      fun just_some_struct_1 : SomeStruct1
+      fun just_some_enum_3 : SomeEnum3
+    )
+
+  assert_transform "simple",
+    "SOCK_STREAM = SOCK_STREAM\nSOCK_DGRAM = SOCK_DGRAM", %(
+      SOCK_STREAM = 1
+      SOCK_DGRAM = 2
     )
 
   assert_transform "simple",
@@ -213,5 +220,16 @@ describe LibBodyTransformer do
       end
 
       fun just_some_struct_with_nest_2(handle : StructWithNest2*)
+    )
+
+  assert_transform "simple",
+    "fun inet_pton", %(
+      fun inet_pton(x0 : LibC::Int, x1 : LibC::Char*, x2 : Void*) : LibC::Int
+    )
+
+  assert_transform "simple",
+    "OCTAL = OCTAL; HEXA = HEXA", %(
+      OCTAL = 493
+      HEXA = 65535
     )
 end
