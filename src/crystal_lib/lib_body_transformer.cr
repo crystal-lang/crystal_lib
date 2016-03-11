@@ -46,6 +46,10 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       end
     end
 
+    if value.size > 1 && value[0] == '0' && value[1] != 'x'
+      value = "0o#{value[1 .. -1]}"
+    end
+
     begin
       node.value = Crystal::Parser.parse(value)
     rescue ex : Crystal::Exception

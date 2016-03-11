@@ -226,4 +226,10 @@ describe LibBodyTransformer do
     "fun inet_pton", %(
       fun inet_pton(x0 : LibC::Int, x1 : LibC::Char*, x2 : Void*) : LibC::Int
     )
+
+  assert_transform "simple",
+    "OCTAL = OCTAL; HEXA = HEXA", %(
+      OCTAL = 493
+      HEXA = 65535
+    )
 end
