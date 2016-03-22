@@ -65,12 +65,12 @@ describe LibBodyTransformer do
 
   assert_transform "simple", "fun just_void", "fun just_void"
   assert_transform "simple", "fun just___builtin_va_list", "fun just___builtin_va_list : LibC::VaList*"
-  assert_transform "simple", "fun function_pointer", "fun function_pointer(x : LibC::Float, LibC::Char -> LibC::Int)"
+  assert_transform "simple", "fun function_pointer", "fun function_pointer(x : (LibC::Float, LibC::Char -> LibC::Int))"
 
   assert_transform "simple",
     "fun function_pointer2",
     %(
-    alias FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    alias FunPtr = (LibC::Float, LibC::Char -> LibC::Int)
     fun function_pointer2(x : FunPtr)
     )
 
@@ -81,7 +81,7 @@ describe LibBodyTransformer do
   assert_transform "simple", "$some_int : Void", "$some_int : LibC::Int"
   assert_transform "simple",
     "$some_fun_ptr : Void", %(
-    alias FunPtr = LibC::Float, LibC::Char -> LibC::Int
+    alias FunPtr = (LibC::Float, LibC::Char -> LibC::Int)
     $some_fun_ptr : FunPtr
   )
   assert_transform "simple", "$var = some_int : Void", "$var = some_int : LibC::Int"

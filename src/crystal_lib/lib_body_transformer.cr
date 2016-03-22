@@ -1,7 +1,4 @@
-require "compiler/crystal/*"
-require "compiler/crystal/syntax/parser"
-require "compiler/crystal/syntax/transformer"
-require "compiler/crystal/semantic/*"
+require "compiler/crystal/**"
 
 class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def initialize(nodes : Array(CrystalLib::ASTNode))
