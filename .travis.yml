@@ -1,0 +1,5 @@
+language: crystal
+sudo: required
+dist: trusty
+install:
+  - sudo apt-get install -qy crystal llvm-3.5-dev libclang-3.5-dev build-essential zlib1g-dev libedit-dev libssl-dev
