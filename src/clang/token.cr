@@ -1,5 +1,5 @@
 struct Clang::Token
-  def initialize(@tokenization, @token)
+  def initialize(@tokenization : Tokenization, @token : LibClang::Token)
   end
 
   def to_unsafe

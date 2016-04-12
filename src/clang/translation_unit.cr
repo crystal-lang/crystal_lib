@@ -1,5 +1,5 @@
 class Clang::TranslationUnit
-  def initialize(@tu)
+  def initialize(@tu : LibClang::TranslationUnit)
   end
 
   def num_diagnostics

@@ -1,12 +1,17 @@
 class CrystalLib::TypeMapper
-  record PendingStruct, crystal_node, clang_type, original_name
+  record PendingStruct,
+    crystal_node : Crystal::StructOrUnionDef,
+    clang_type : CrystalLib::StructOrUnion,
+    original_name : String
 
   getter pending_definitions
+
+  @typedef_name : String?
 
   def initialize(@prefix_matcher = nil)
     @pending_definitions = [] of Crystal::ASTNode
     @pending_structs = [] of PendingStruct
-    @generated = {} of typeof(object_id) => Crystal::ASTNode
+    @generated = {} of UInt64 => Crystal::ASTNode
 
     # When completing a struct's fields we keep that struct and the field name in
     # case we find a nested struct, such as in:#

@@ -175,7 +175,7 @@ describe Parser do
     nodes = parse("typedef int foo(float);")
     typedef = nodes.last as Typedef
     typedef.name.should eq("foo")
-    typedef.type.should eq(FunctionType.new([PrimitiveType.float], PrimitiveType.int))
+    typedef.type.should eq(FunctionType.new([PrimitiveType.float] of Type, PrimitiveType.int))
   end
 
   it "parses enum" do
@@ -245,7 +245,7 @@ describe Parser do
       nodes = parse("int (*tester)(float, char) = 0;")
       var = nodes.last as Var
       var.name.should eq("tester")
-      var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char], PrimitiveType.int))
+      var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char] of Type, PrimitiveType.int))
     end
   end
 end

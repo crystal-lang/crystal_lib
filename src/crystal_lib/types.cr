@@ -117,7 +117,7 @@ module CrystalLib
   class PointerType < Type
     property type
 
-    def initialize(@type)
+    def initialize(@type : Type)
     end
 
     def to_s(io)
@@ -130,7 +130,7 @@ module CrystalLib
   class BlockPointerType < Type
     property type
 
-    def initialize(@type)
+    def initialize(@type : Type)
     end
 
     def to_s(io)
@@ -144,7 +144,7 @@ module CrystalLib
     property type
     property size
 
-    def initialize(@type, @size)
+    def initialize(@type : Type, @size : Int32)
     end
 
     def to_s(io)
@@ -157,7 +157,7 @@ module CrystalLib
   class IncompleteArrayType < Type
     property type
 
-    def initialize(@type)
+    def initialize(@type : Type)
     end
 
     def to_s(io)
@@ -171,7 +171,7 @@ module CrystalLib
     property inputs
     property output
 
-    def initialize(@inputs, @output)
+    def initialize(@inputs : Array(Type), @output : Type)
     end
 
     def to_s(io)
@@ -186,7 +186,7 @@ module CrystalLib
     property name
     property type
 
-    def initialize(@name, @type)
+    def initialize(@name : String, @type : Type)
     end
 
     def to_s(io)
@@ -199,7 +199,7 @@ module CrystalLib
   class UnexposedType < Type
     property name
 
-    def initialize(@name)
+    def initialize(@name : String)
     end
 
     def to_s(io)
@@ -212,7 +212,7 @@ module CrystalLib
   class ErrorType < Type
     property name
 
-    def initialize(@name)
+    def initialize(@name : String)
     end
 
     def to_s(io)
@@ -225,7 +225,7 @@ module CrystalLib
   class NodeRef < Type
     property node
 
-    def initialize(@node)
+    def initialize(@node : ASTNode)
     end
 
     def to_s(io)

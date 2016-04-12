@@ -1,7 +1,7 @@
 require "./type"
 
 struct Clang::Cursor
-  def initialize(@cursor)
+  def initialize(@cursor : LibClang::Cursor)
   end
 
   def definition

@@ -1,5 +1,5 @@
 struct Clang::SourceRange
-  def initialize(@range)
+  def initialize(@range : LibClang::SourceRange)
   end
 
   def start

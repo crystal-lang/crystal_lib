@@ -9,7 +9,7 @@ module CrystalLib
     property name
     property value
 
-    def initialize(@name, @value)
+    def initialize(@name : String, @value : String)
     end
 
     def to_s(io, semicolon = true)
@@ -23,7 +23,7 @@ module CrystalLib
     property name
     property type
 
-    def initialize(@name, @type)
+    def initialize(@name : String, @type : Type)
     end
 
     def to_s(io, semicolon = true)
@@ -40,7 +40,7 @@ module CrystalLib
     property return_type
     property? variadic
 
-    def initialize(@name, @return_type, @variadic)
+    def initialize(@name : String, @return_type : Type, @variadic : Bool)
       @args = [] of Arg
     end
 
@@ -63,7 +63,7 @@ module CrystalLib
     property name
     property type
 
-    def initialize(@name, @type)
+    def initialize(@name : String, @type : Type)
     end
 
     def to_s(io, semicolon = true)
@@ -81,7 +81,7 @@ module CrystalLib
 
     getter unscoped_name
 
-    def initialize(@kind, name)
+    def initialize(@kind : Symbol, name : String)
       @unscoped_name = name
       if name.empty?
         @name = ""
@@ -112,7 +112,7 @@ module CrystalLib
     property name
     property type
 
-    def initialize(@name, @type)
+    def initialize(@name : String, @type : Type)
     end
 
     def to_s(io, semicolon = true)
@@ -128,7 +128,7 @@ module CrystalLib
     property type
     property values
 
-    def initialize(@name, @type)
+    def initialize(@name : String, @type : Type)
       @values = [] of EnumValue
     end
 
@@ -155,7 +155,7 @@ module CrystalLib
     property name
     property value
 
-    def initialize(@name, @value)
+    def initialize(@name : String, @value : Int64)
     end
 
     def to_s(io, semicolon = true)

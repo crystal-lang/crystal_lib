@@ -1,5 +1,5 @@
 struct Clang::SourceLocation
-  def initialize(@location)
+  def initialize(@location : LibClang::SourceLocation)
   end
 
   def is_from_main_file?

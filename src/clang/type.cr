@@ -1,5 +1,5 @@
 struct Clang::Type
-  def initialize(@type)
+  def initialize(@type : LibClang::Type)
   end
 
   def spelling

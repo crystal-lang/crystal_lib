@@ -9,7 +9,9 @@ class CrystalLib::Parser
     nodes
   end
 
-  def initialize(@source, flags = [] of String)
+  @tu : Clang::TranslationUnit
+
+  def initialize(@source : String, flags = [] of String)
     @nodes = [] of ASTNode
     @cursor_hash_to_node = {} of UInt32 => ASTNode
     @idx = Clang::Index.new
@@ -270,11 +272,11 @@ class CrystalLib::Parser
   end
 
   def pointer_types
-    @pointer_types ||= {} of typeof(object_id) => Type
+    @pointer_types ||= {} of UInt64 => Type
   end
 
   def block_pointer_types
-    @block_pointer_types ||= {} of typeof(object_id) => Type
+    @block_pointer_types ||= {} of UInt64 => Type
   end
 
   def named_types
@@ -285,17 +287,20 @@ class CrystalLib::Parser
     @named_nodes ||= {} of String => ASTNode
   end
 
-  record ConstantArrayKey, object_id, size
+  record ConstantArrayKey,
+    object_id : UInt64, size : Int32
 
   def constant_array_types
     @constant_array_types ||= {} of ConstantArrayKey => Type
   end
 
   def incomplete_array_types
-    @incomplete_array_types ||= {} of typeof(object_id) => Type
+    @incomplete_array_types ||= {} of UInt64 => Type
   end
 
-  record FunctionKey, inputs_ids, output_id
+  record FunctionKey,
+    inputs_ids : Array(UInt64),
+    output_id : UInt64
 
   def function_types
     @function_types ||= {} of FunctionKey => Type

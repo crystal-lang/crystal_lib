@@ -1,7 +1,7 @@
 class Clang::Tokenization
   include Enumerable(Token)
 
-  def initialize(@translation_unit, @tokens)
+  def initialize(@translation_unit : TranslationUnit, @tokens : Slice(LibClang::Token))
   end
 
   def each

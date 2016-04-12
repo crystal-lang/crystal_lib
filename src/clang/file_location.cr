@@ -1,1 +1,5 @@
-record Clang::FileLocation, filename, line, column, offset
+record Clang::FileLocation,
+  filename : String?,
+  line : UInt32,
+  column : UInt32,
+  offset : UInt32
