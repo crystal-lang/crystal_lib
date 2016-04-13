@@ -8,7 +8,7 @@ class CrystalLib::TypeMapper
 
   @typedef_name : String?
 
-  def initialize(@prefix_matcher = nil)
+  def initialize(@prefix_matcher : PrefixMatcher? = nil)
     @pending_definitions = [] of Crystal::ASTNode
     @pending_structs = [] of PendingStruct
     @generated = {} of UInt64 => Crystal::ASTNode

@@ -7,7 +7,7 @@ class CrystalLib::PrefixImporter
     importer.result
   end
 
-  def initialize(@prefix_matcher)
+  def initialize(@prefix_matcher : PrefixMatcher)
     @nodes = [] of Crystal::ASTNode
     @mapper = TypeMapper.new(@prefix_matcher)
   end
