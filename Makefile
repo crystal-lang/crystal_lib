@@ -1,5 +1,5 @@
 crystal_lib: $(shell find . -name "*.cr")
-	crystal build src/crystal_lib.cr
+	crystal build src/main.cr
 
 clean:
-	rm -rf .crystal crystal_lib
+	rm -rf .crystal main
