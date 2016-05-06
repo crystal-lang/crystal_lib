@@ -1,4 +1,4 @@
-# crystal_lib
+# crystal_lib [![Build Status](https://travis-ci.org/crystal-lang/crystal_lib.svg?branch=master)](https://travis-ci.org/crystal-lang/crystal_lib)
 
 Automatic binding generator for native libraries in Crystal.
 
