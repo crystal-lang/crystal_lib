@@ -1,4 +1,4 @@
-require "compiler/crystal/**"
+require "compiler/crystal/syntax"
 
 class CrystalLib::LibBodyTransformer < Crystal::Transformer
   def initialize(nodes : Array(CrystalLib::ASTNode))
@@ -44,7 +44,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
     end
 
     if value.size > 1 && value[0] == '0' && value[1] != 'x'
-      value = "0o#{value[1 .. -1]}"
+      value = "0o#{value[1..-1]}"
     end
 
     begin
