@@ -107,9 +107,9 @@ class CrystalLib::TypeMapper
   end
 
   def map_internal(type : FunctionType)
-    inputs = type.inputs.map { |input| map_non_recursive(input) as Crystal::ASTNode }
+    inputs = type.inputs.map { |input| map_non_recursive(input).as(Crystal::ASTNode) }
     output = map_non_recursive(type.output)
-    Crystal::Fun.new(inputs, output)
+    Crystal::ProcNotation.new(inputs, output)
   end
 
   def map_internal(type : ConstantArrayType)
@@ -129,7 +129,7 @@ class CrystalLib::TypeMapper
   def map_internal(type : CrystalLib::Enum)
     enum_name = crystal_type_name(check_anonymous_name(type.name))
     enum_members = type.values.map do |value|
-      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(value.value)) as Crystal::ASTNode
+      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(value.value)).as(Crystal::ASTNode)
     end
     enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members)
     @pending_definitions << enum_def
@@ -221,7 +221,7 @@ class CrystalLib::TypeMapper
     while pending_struct = @pending_structs.pop?
       fields = pending_struct.clang_type.fields.map do |field|
         @structs_stack.push({pending_struct, field.name})
-        arg = Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)) as Crystal::ASTNode
+        arg = Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)).as(Crystal::ASTNode)
         @structs_stack.pop
         arg
       end
