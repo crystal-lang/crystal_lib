@@ -39,7 +39,7 @@ class CrystalLib::LibTransformer < Crystal::Transformer
         when Crystal::StringLiteral
           headers << "#include <" << arg.value << ">\n"
         else
-          arg.raise "Include attribute value must be a string literal"
+          raise "Include attribute value must be a string literal, at #{arg.location}"
         end
       end
       attr.named_args.try &.each do |named_arg|
@@ -50,7 +50,7 @@ class CrystalLib::LibTransformer < Crystal::Transformer
           when Crystal::StringLiteral
             flags.concat(value.value.split(' '))
           else
-            value.raise "Include flags value must be a string literal"
+            raise "Include flags value must be a string literal, at #{value.location}"
           end
         when "prefix"
           value = named_arg.value
@@ -63,11 +63,11 @@ class CrystalLib::LibTransformer < Crystal::Transformer
               when Crystal::StringLiteral
                 prefixes << value2.value
               else
-                value.raise "Include prefix value must be a string literal or array literal of string literals"
+                raise "Include prefix value must be a string literal or array literal of string literals, at #{value.location}"
               end
             end
           else
-            value.raise "Include prefix value must be a string literal or array literal"
+            raise "Include prefix value must be a string literal or array literal, at #{value.location}"
           end
         when "remove_prefix"
           value = named_arg.value
@@ -75,10 +75,10 @@ class CrystalLib::LibTransformer < Crystal::Transformer
           when Crystal::BoolLiteral
             remove_prefix = value.value
           else
-            value.raise "Include remove_prefix value must be a bool literal"
+            raise "Include remove_prefix value must be a bool literal, at #{value.location}"
           end
         else
-          named_arg.raise "unknown named argument for Include attribtue"
+          raise "unknown named argument for Include attribtue, at #{named_arg.location}"
         end
       end
     end
