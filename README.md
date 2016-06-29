@@ -2,14 +2,14 @@
 
 Automatic binding generator for native libraries in Crystal.
 
-This will eventually be integrated in the compiler itself so you don't have to manually
-generate these bindings and copy paste them in your project. The advantage of this is
+This will eventually be integrated into the compiler itself so you don't have to manually
+generate these bindings and copy &amp; paste them into your project. The advantage of this is
 that some types and values vary depending on the platform, so generating these as late
 as possible is the best thing to do.
 
 ## Status
 
-For now you can use this as tool to generate bindings from a `lib` declaration. Check
+For now you can use this as a tool to generate bindings from a `lib` declaration. Check
 the examples directory.
 
 ### Usage
