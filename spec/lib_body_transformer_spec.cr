@@ -232,4 +232,12 @@ describe LibBodyTransformer do
       OCTAL = 493
       HEXA = 65535
     )
+
+  assert_transform "simple",
+    "fun some_struct_with_other_struct_pointer", %(
+      struct StructBar
+        x : LibC::Int
+      end
+      fun some_struct_with_other_struct_pointer(handle : StructBar*)
+    )
 end

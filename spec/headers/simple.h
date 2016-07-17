@@ -118,6 +118,17 @@ typedef struct {
 
 void just_some_struct_with_nest_2(struct_with_nest_2* handle);
 
+struct struct_foo {
+  struct struct_bar* bar;
+};
+
+struct struct_bar {
+  int x;
+};
+
+typedef struct struct_bar struct_bar;
+void some_struct_with_other_struct_pointer(struct_bar* handle);
+
 #define inet_pton __inet_pton
 int __inet_pton(int, char*, void*);
 
