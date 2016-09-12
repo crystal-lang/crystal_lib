@@ -1,6 +1,6 @@
 class CrystalLib::TypeMapper
   record PendingStruct,
-    crystal_node : Crystal::StructOrUnionDef,
+    crystal_node : Crystal::CStructOrUnionDef,
     clang_type : CrystalLib::StructOrUnion,
     original_name : String
 
@@ -144,8 +144,7 @@ class CrystalLib::TypeMapper
       # For an empty struct we just return an alias to Void
       struct_def = Crystal::Alias.new(struct_name, path(["Void"]))
     else
-      klass = type.kind == :struct ? Crystal::StructDef : Crystal::UnionDef
-      struct_def = klass.new(struct_name)
+      struct_def = Crystal::CStructOrUnionDef.new(struct_name, union: type.kind == :union)
 
       # Leave struct body for later, because of possible recursiveness
       @pending_structs << PendingStruct.new(struct_def, type, untouched_struct_name)

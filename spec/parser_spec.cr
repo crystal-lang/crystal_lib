@@ -3,42 +3,42 @@ require "./spec_helper"
 describe Parser do
   it "parses define" do
     nodes = parse("#define FOO 1")
-    define = nodes.last as Define
+    define = nodes.last.as(Define)
     define.name.should eq("FOO")
     define.value.should eq("1")
   end
 
   it "parses define with operator" do
     nodes = parse("#define FOO 1 << 2")
-    define = nodes.last as Define
+    define = nodes.last.as(Define)
     define.name.should eq("FOO")
     define.value.should eq("1<<2")
   end
 
   it "parses define where a macro call follows" do
     nodes = parse("#define BAR extern\n#define FOO 1\nBAR int x;")
-    define = nodes[-2] as Define
+    define = nodes[-2].as(Define)
     define.name.should eq("FOO")
     define.value.should eq("1")
   end
 
   it "parses define with ((void*)-2) " do
     nodes = parse("#define FOO ((void*)-2)")
-    define = nodes.last as Define
+    define = nodes.last.as(Define)
     define.name.should eq("FOO")
     define.value.should eq("((void*)-2)")
   end
 
   it "parses variable" do
     nodes = parse("int some_var;")
-    var = nodes.last as Var
+    var = nodes.last.as(Var)
     var.name.should eq("some_var")
     var.type.should eq(PrimitiveType.int)
   end
 
   it "parses function" do
     nodes = parse("int some_func(float x);")
-    func = nodes.last as Function
+    func = nodes.last.as(Function)
     func.name.should eq("some_func")
     func.return_type.should eq(PrimitiveType.int)
     args = func.args
@@ -50,20 +50,20 @@ describe Parser do
 
   it "parses function with arg without name" do
     nodes = parse("int some_func(float);")
-    func = nodes.last as Function
+    func = nodes.last.as(Function)
     func.args.first.name.should eq("")
     func.variadic?.should be_false
   end
 
   it "parses variadic function" do
     nodes = parse("int some_func(float, ...);")
-    func = nodes.last as Function
+    func = nodes.last.as(Function)
     func.variadic?.should be_true
   end
 
   it "parses function with function type" do
     nodes = parse("void some_func(int (*x)(float, char));")
-    func = nodes.last as Function
+    func = nodes.last.as(Function)
     func.name.should eq("some_func")
     func.return_type.should eq(PrimitiveType.void)
     args = func.args
@@ -75,7 +75,7 @@ describe Parser do
 
   it "parses struct" do
     nodes = parse("struct point { int x; int y; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     type.kind.should eq(:struct)
     type.name.should eq("struct point")
     fields = type.fields
@@ -84,14 +84,14 @@ describe Parser do
 
   it "parses struct with unexposed struct" do
     nodes = parse("struct point { struct foo* x; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     fields = type.fields
     fields.first.type.should eq(PointerType.new(UnexposedType.new("foo")))
   end
 
   it "parses recursive struct" do
     nodes = parse("struct point { struct point* x; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     type.kind.should eq(:struct)
     type.name.should eq("struct point")
     fields = type.fields
@@ -100,7 +100,7 @@ describe Parser do
 
   it "parses union" do
     nodes = parse("union point { int x; int y; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     type.kind.should eq(:union)
     type.name.should eq("union point")
     fields = type.fields
@@ -109,7 +109,7 @@ describe Parser do
 
   it "parses unnamed struct" do
     nodes = parse("struct { int x; int y; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     type.kind.should eq(:struct)
     type.name.should eq("")
     fields = type.fields
@@ -118,14 +118,14 @@ describe Parser do
 
   it "parses struct with nested struct" do
     nodes = parse("struct point { struct { int x; int y; } nested; };")
-    type = nodes.last as StructOrUnion
+    type = nodes.last.as(StructOrUnion)
     type.kind.should eq(:struct)
     type.name.should eq("struct point")
     fields = type.fields
     fields.size.should eq(1)
 
-    subtype = fields[0].type as NodeRef
-    subtype = subtype.node as StructOrUnion
+    subtype = fields[0].type.as(NodeRef)
+    subtype = subtype.node.as(StructOrUnion)
     subtype.kind.should eq(:struct)
     fields = subtype.fields
     fields.size.should eq(2)
@@ -137,50 +137,50 @@ describe Parser do
 
   it "parses typedef" do
     nodes = parse("typedef int foo;")
-    typedef = nodes.last as Typedef
+    typedef = nodes.last.as(Typedef)
     typedef.name.should eq("foo")
     typedef.type.should eq(PrimitiveType.int)
   end
 
   it "parses typedef struct" do
     nodes = parse("struct foo { int x; int y; }; typedef struct foo point;")
-    type = nodes.last as Typedef
+    type = nodes.last.as(Typedef)
     type.name.should eq("point")
-    node_ref = type.type as NodeRef
-    str = node_ref.node as StructOrUnion
+    node_ref = type.type.as(NodeRef)
+    str = node_ref.node.as(StructOrUnion)
     fields = str.fields
     fields.size.should eq(2)
   end
 
   it "parses typedef struct" do
     nodes = parse("typedef struct { int x; int y; } point;")
-    type = nodes.last as Typedef
+    type = nodes.last.as(Typedef)
     type.name.should eq("point")
-    node_ref = type.type as NodeRef
-    str = node_ref.node as StructOrUnion
+    node_ref = type.type.as(NodeRef)
+    str = node_ref.node.as(StructOrUnion)
     fields = str.fields
     fields.size.should eq(2)
   end
 
   it "parses typedef enum" do
     nodes = parse("typedef enum { x, y } point;")
-    type = nodes.last as Typedef
+    type = nodes.last.as(Typedef)
     type.name.should eq("point")
-    node_ref = type.type as NodeRef
-    enum_def = node_ref.node as CrystalLib::Enum
+    node_ref = type.type.as(NodeRef)
+    enum_def = node_ref.node.as(CrystalLib::Enum)
     enum_def.values.size.should eq(2)
   end
 
   it "parses typedef function" do
     nodes = parse("typedef int foo(float);")
-    typedef = nodes.last as Typedef
+    typedef = nodes.last.as(Typedef)
     typedef.name.should eq("foo")
     typedef.type.should eq(FunctionType.new([PrimitiveType.float] of Type, PrimitiveType.int))
   end
 
   it "parses enum" do
     nodes = parse("enum colors { red, green = 10, blue };")
-    enum_decl = nodes.last as CrystalLib::Enum
+    enum_decl = nodes.last.as(CrystalLib::Enum)
     enum_decl.name.should eq("colors")
     enum_decl.type.should eq(PrimitiveType.new(PrimitiveType::Kind::UInt))
     values = enum_decl.values
@@ -198,9 +198,9 @@ describe Parser do
 
   it "parses forward declared struct" do
     nodes = parse("struct point; typedef struct point spoint; struct point { int x; };")
-    typedef_type = nodes[-2] as Typedef
-    node_ref = (typedef_type.type as NodeRef)
-    node = node_ref.node as StructOrUnion
+    typedef_type = nodes[-2].as(Typedef)
+    node_ref = (typedef_type.type.as(NodeRef))
+    node = node_ref.node.as(StructOrUnion)
     node.name.should eq("struct point")
     node.fields.size.should eq(1)
   end
@@ -208,42 +208,42 @@ describe Parser do
   describe "types" do
     it "parses primitive" do
       nodes = parse("int some_var;")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("some_var")
       var.type.should eq(PrimitiveType.int)
     end
 
     it "parses pointer" do
       nodes = parse("int* some_var;")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("some_var")
       var.type.should eq(PointerType.new(PrimitiveType.int))
     end
 
     it "parses typedef" do
       nodes = parse("typedef int foo; foo some_var;")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("some_var")
       var.type.should eq(TypedefType.new("foo", PrimitiveType.int))
     end
 
     it "parses constant array" do
       nodes = parse("int some_var[2];")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("some_var")
       var.type.should eq(ConstantArrayType.new(PrimitiveType.int, 2))
     end
 
     it "parses complete array" do
       nodes = parse("int some_var[];")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("some_var")
       var.type.should eq(IncompleteArrayType.new(PrimitiveType.int))
     end
 
     it "parses function" do
       nodes = parse("int (*tester)(float, char) = 0;")
-      var = nodes.last as Var
+      var = nodes.last.as(Var)
       var.name.should eq("tester")
       var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char] of Type, PrimitiveType.int))
     end

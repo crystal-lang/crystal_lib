@@ -9,7 +9,7 @@ private def assert_transform(header, input, output, file = __FILE__, line = __LI
       lib LibSome
         #{input}
       end
-    )) as Crystal::LibDef
+    )).as(Crystal::LibDef)
     lib_def.body = transformer.transform(lib_def.body)
     join_lines(lib_def.to_s).should eq(join_lines("lib LibSome\n#{output}\nend"))
   end
