@@ -28,7 +28,7 @@ class CrystalLib::LibTransformer < Crystal::Transformer
   end
 
   def process_includes
-    headers = MemoryIO.new
+    headers = IO::Memory.new
     flags = [] of String
     prefixes = [] of String
     remove_prefix = true
