@@ -253,6 +253,8 @@ module Clang
       VariableArray       = 115
       DependentSizedArray = 116
       MemberPointer       = 117
+      Auto                = 118
+      Elaborated          = 119
     end
   end
 
