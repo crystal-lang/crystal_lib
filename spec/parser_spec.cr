@@ -238,7 +238,7 @@ describe Parser do
       nodes = parse("int some_var[];")
       var = nodes.last.as(Var)
       var.name.should eq("some_var")
-      var.type.should eq(IncompleteArrayType.new(PrimitiveType.int))
+      var.type.should eq(ConstantArrayType.new(PrimitiveType.int, 1))
     end
 
     it "parses function" do
