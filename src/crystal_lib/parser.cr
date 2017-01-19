@@ -151,7 +151,7 @@ class CrystalLib::Parser
     cursor.visit_children do |subcursor|
       if subcursor.kind == Clang::Cursor::Kind::FieldDecl
         var = visit_var_declaration(subcursor)
-        unless struct_or_union.fields.any?{ |v| v.name == var.name }
+        unless struct_or_union.fields.any? { |v| v.name == var.name }
           struct_or_union.fields << var
         end
       end
