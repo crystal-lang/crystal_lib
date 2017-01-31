@@ -56,13 +56,24 @@ class CrystalLib::PrefixImporter
   end
 
   def process(node : Enum)
-    if node.name.empty?
+    if node.name.empty? # anonymous enum
       node.values.each do |value|
         name = match_prefix(value)
         next unless name
 
         @nodes << Crystal::Assign.new(Crystal::Path.new(@mapper.crystal_type_name(name)), Crystal::NumberLiteral.new(value.value))
       end
+    else # enumerated type
+      members = [] of Crystal::ASTNode
+
+      node.values.each do |value|
+        name = match_prefix(value)
+        next unless name
+
+        members << Crystal::Arg.new(@mapper.crystal_type_name(name), Crystal::NumberLiteral.new(value.value))
+      end
+
+      @nodes << Crystal::EnumDef.new(Crystal::Path.new(node.name), members)
     end
   end
 
