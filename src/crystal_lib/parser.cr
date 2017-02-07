@@ -221,7 +221,8 @@ class CrystalLib::Parser
       else
         named_types[spelling]? || error_type(spelling)
       end
-    when Clang::Type::Kind::Unexposed
+    when Clang::Type::Kind::Unexposed,
+         Clang::Type::Kind::Elaborated
       existing = @cursor_hash_to_node[type.cursor.hash]?
       if existing
         NodeRef.new(existing)
@@ -257,7 +258,8 @@ class CrystalLib::Parser
          Clang::Type::Kind::WChar
       primitive_type(type.kind)
     when Clang::Type::Kind::Record,
-         Clang::Type::Kind::Dependent
+         Clang::Type::Kind::Dependent,
+         Clang::Type::Kind::Auto
       # Skip these for now. If they are needed we'll analyze them at that time
       error_type(type.spelling)
     else
