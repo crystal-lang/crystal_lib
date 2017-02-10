@@ -2,6 +2,8 @@
 
 Automatic binding generator for native libraries in Crystal.
 
+NOTE: THIS PROJECT IS EXPERIMENTAL. WHILE IT'S PROVING USEFUL FOR A WIDE RANGE OF LIBRARIES, THERE ARE STILL SEVERAL CORNER CASES THAT WILL NOT TRANSLATE PROPERLY. 
+
 This will eventually be integrated into the compiler itself so you don't have to manually
 generate these bindings and copy &amp; paste them into your project. The advantage of this is
 that some types and values vary depending on the platform, so generating these as late
