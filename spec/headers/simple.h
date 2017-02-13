@@ -48,7 +48,8 @@ enum some_enum_2 just_some_enum_2();
 
 enum some_enum_3 {
   node_para = 1,
-  NODE_LINK = 2
+  NODE_LINK = 2,
+  NodeName = 3
 };
 enum some_enum_3 just_some_enum_3();
 
@@ -100,6 +101,9 @@ void just_some_struct_with_end(struct struct_with_end* handle);
 
 typedef int __underscore;
 __underscore just_some_underscore();
+
+typedef int TCamelCase;
+TCamelCase just_some_camelcase();
 
 struct struct_with_nest {
   struct {

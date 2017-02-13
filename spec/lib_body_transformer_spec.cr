@@ -114,6 +114,7 @@ describe LibBodyTransformer do
       enum SomeEnum3
         NodePara = 1
         NodeLink = 2
+        NodeName = 3
       end
       fun just_some_enum_3 : SomeEnum3
     )
@@ -191,6 +192,12 @@ describe LibBodyTransformer do
     "fun just_some_underscore", %(
       alias X__Underscore = LibC::Int
       fun just_some_underscore : X__Underscore
+    )
+
+  assert_transform "simple",
+    "fun just_some_camelcase", %(
+      alias TCamelCase = LibC::Int
+      fun just_some_camelcase : TCamelCase
     )
 
   assert_transform "simple",
