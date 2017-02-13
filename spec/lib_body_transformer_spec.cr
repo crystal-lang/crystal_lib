@@ -119,18 +119,17 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
-    "fun just_some_enum_3", %(
-      enum SomeEnum3
-        NodePara = 1
-        NodeLink = 2
-      end
-      fun just_some_enum_3 : SomeEnum3
-    )
-
-  assert_transform "simple",
     "SOCK_STREAM = SOCK_STREAM\nSOCK_DGRAM = SOCK_DGRAM", %(
       SOCK_STREAM = 1
       SOCK_DGRAM = 2
+    )
+
+  assert_transform "simple",
+    "fun just_some_struct_1", %(
+      struct SomeStruct1
+        x : LibC::Int
+      end
+      fun just_some_struct_1 : SomeStruct1
     )
 
   assert_transform "simple",
