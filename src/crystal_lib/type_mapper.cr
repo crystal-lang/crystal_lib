@@ -67,8 +67,7 @@ class CrystalLib::TypeMapper
 
     # Check the case of a pointer to an opaque struct
     if opaque_type = opaque_typedef?(pointee_type)
-      typedef_name = opaque_type.name.capitalize
-      return declare_typedef(typedef_name, pointer_type(path("Void")))
+      return declare_typedef(opaque_type.name, pointer_type(path("Void")))
     end
 
     pointer_type(map_non_recursive(type.type))

@@ -32,8 +32,11 @@ int some_int;
 fun_ptr some_fun_ptr;
 
 typedef struct opaque *opaque_reference;
+struct anotherOpaque;
+typedef struct anotherOpaque anotherOpaqueReference;
 
 opaque_reference just_opaque_reference();
+anotherOpaqueReference *just_another_opaque_reference();
 
 typedef enum {
   x,
