@@ -93,6 +93,12 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
+    "fun just_another_opaque_reference", %(
+      type AnotherOpaqueReference = Void*
+      fun just_another_opaque_reference : AnotherOpaqueReference
+    )
+
+  assert_transform "simple",
     "fun just_some_enum_1", %(
       enum SomeEnum1
         X = 0
