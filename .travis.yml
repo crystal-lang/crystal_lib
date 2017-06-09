@@ -1,5 +1,79 @@
 language: crystal
 sudo: required
-dist: trusty
-install:
-  - sudo apt-get install -qy crystal llvm-3.5-dev libclang-3.5-dev build-essential zlib1g-dev libedit-dev libssl-dev
+
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    env: LLVM_VERSION=3.5
+  - os: linux
+    dist: trusty
+    env: LLVM_VERSION=3.6
+  - os: linux
+    dist: trusty
+    env: LLVM_VERSION=3.7
+  - os: linux
+    dist: trusty
+    env: LLVM_VERSION=3.8
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=3.7
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=3.8
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=3.9
+  - os: osx
+    osx_image: xcode8.3
+    env:
+    - LLVM_VERSION=4.0
+    - FORMULA=llvm
+
+
+before_install: |
+  set -e
+  set -x
+
+  case $TRAVIS_OS_NAME in
+  linux)
+    # FIXME: several ugly fixes since there is no proper Travis CI Xenial image:
+    #        - Xenial's APT repository is added in the image
+    #        - the "binutils" package is re-installed in it's Xenial version
+    #          (see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808205)
+    #        - the "libclang.so" shared object is manually added to the ld
+    #          library path since some versions of the libclang-dev package are
+    #          not doing it properly
+    #        - the "stddef.h" header is manually added the system's includes dir
+    #          since some versions of the libclang-common-dev package are not
+    #          doing it properly
+    echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee /etc/apt/sources.list.d/ubuntu-xenial.list
+
+    sudo apt-get -qq update
+    sudo apt-get install -t xenial -y llvm-${LLVM_VERSION}-dev libclang-${LLVM_VERSION}-dev binutils
+
+    sudo ln -s $(llvm-config-${LLVM_VERSION} --libdir)/libclang.so /usr/lib/
+    sudo ln -s $(llvm-config-${LLVM_VERSION} --libdir)/clang/$(llvm-config-${LLVM_VERSION} --version)/include/stddef.h /usr/include/
+    #find $(llvm-config-${LLVM_VERSION} --libdir)/clang/$(llvm-config-${LLVM_VERSION} --version)/include/ -maxdepth 1 -type f -name '*.h' -exec sh -c '[ -e /usr/include/$(basename {}) ] || ln -s {} /usr/include/$(basename {})' \;
+    ;;
+
+  osx)
+    # FIXME: several fixes to the macOS Travis CI image:
+    #        - the "/usr/local/bin/shards" file is removed so the crystal-lang
+    #          formula can be installed without error
+    #        - the crystal-lang formula is installed manually
+    #        - the "libclang.dylib" shared object is manually added to the ld
+    #          library path since the llvm the formula don't do it properly
+    brew update
+    rm -f /usr/local/bin/shards
+    brew install crystal-lang
+
+    brew install ${FORMULA:-llvm@$LLVM_VERSION}
+    brew list --verbose ${FORMULA:-llvm@$LLVM_VERSION} | grep "\.dylib$" | xargs -n1 -I{} ln -sf {} $(brew --prefix)/lib
+    ;;
+
+  *)
+    exit 1;;
+  esac
+
+  set +x
