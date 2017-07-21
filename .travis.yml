@@ -58,17 +58,11 @@ before_install: |
     ;;
 
   osx)
-    # FIXME: several fixes to the macOS Travis CI image:
-    #        - the "/usr/local/bin/shards" file is removed so the crystal-lang
-    #          formula can be installed without error
-    #        - the crystal-lang formula is installed manually
-    #        - the "libclang.dylib" shared object is manually added to the ld
-    #          library path since the llvm the formula don't do it properly
     brew update
-    rm -f /usr/local/bin/shards
-    brew install crystal-lang
-
     brew install ${FORMULA:-llvm@$LLVM_VERSION}
+
+    # FIXME: the "libclang.dylib" shared object is manually added to the ld
+    #        library path since the llvm the formula don't do it properly
     brew list --verbose ${FORMULA:-llvm@$LLVM_VERSION} | grep "\.dylib$" | xargs -n1 -I{} ln -sf {} $(brew --prefix)/lib
     ;;
 
