@@ -5,30 +5,22 @@ matrix:
   include:
   - os: linux
     dist: trusty
-    env: LLVM_VERSION=3.5
-  - os: linux
-    dist: trusty
-    env: LLVM_VERSION=3.6
-  - os: linux
-    dist: trusty
-    env: LLVM_VERSION=3.7
-  - os: linux
-    dist: trusty
     env: LLVM_VERSION=3.8
-  - os: osx
-    osx_image: xcode8.3
-    env: LLVM_VERSION=3.7
-  - os: osx
-    osx_image: xcode8.3
-    env: LLVM_VERSION=3.8
+  - os: linux
+    dist: trusty
+    env: LLVM_VERSION=3.9
   - os: osx
     osx_image: xcode8.3
     env: LLVM_VERSION=3.9
   - os: osx
     osx_image: xcode8.3
-    env:
-    - LLVM_VERSION=4.0
-    - FORMULA=llvm
+    env: LLVM_VERSION=4
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=5
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=6
 
 
 before_install: |
@@ -37,29 +29,29 @@ before_install: |
 
   case $TRAVIS_OS_NAME in
   linux)
-    # FIXME: several ugly fixes since there is no proper Travis CI Xenial image:
-    #        - Xenial's APT repository is added in the image
-    #        - the "binutils" package is re-installed in it's Xenial version
-    #          (see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=808205)
-    #        - the "libclang.so" shared object is manually added to the ld
-    #          library path since some versions of the libclang-dev package are
-    #          not doing it properly
-    #        - the "stddef.h" header is manually added the system's includes dir
-    #          since some versions of the libclang-common-dev package are not
-    #          doing it properly
-    echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee /etc/apt/sources.list.d/ubuntu-xenial.list
-
     sudo apt-get -qq update
-    sudo apt-get install -t xenial -y llvm-${LLVM_VERSION}-dev libclang-${LLVM_VERSION}-dev binutils
+    sudo apt-get install -y llvm-${LLVM_VERSION}-dev libclang-${LLVM_VERSION}-dev
 
-    sudo ln -s $(llvm-config-${LLVM_VERSION} --libdir)/libclang.so /usr/lib/
-    sudo ln -s $(llvm-config-${LLVM_VERSION} --libdir)/clang/$(llvm-config-${LLVM_VERSION} --version)/include/stddef.h /usr/include/
-    #find $(llvm-config-${LLVM_VERSION} --libdir)/clang/$(llvm-config-${LLVM_VERSION} --version)/include/ -maxdepth 1 -type f -name '*.h' -exec sh -c '[ -e /usr/include/$(basename {}) ] || ln -s {} /usr/include/$(basename {})' \;
+    # FIXME: several ugly fixes since the Travis CI image is shipped
+    #        with a pre-configured version of LLVM:
+    #        - /usr/bin/llvm-config is configured to point to the llvm-config
+    #          executable that comes with the llvm-${LLVM_VERSION} package
+    #        - the $PATH env. var. is modified to use executables from /usr/bin
+    #          in priority to be sure that /usr/bin/llvm-config will be used to
+    #          provide llvm-config (by default, the /usr/local/clang-VERSION/bin
+    #          directory is present in $PATH with a better priority)
+    sudo update-alternatives --install /usr/bin/llvm-config llvm-config $(llvm-config-${LLVM_VERSION} --bindir)/llvm-config 1
+    export PATH=/usr/bin:$PATH
     ;;
 
   osx)
     brew update
     brew install ${FORMULA:-llvm@$LLVM_VERSION}
+
+    # make sure the default llvm-config executable is the one of the brew
+    # formula (see https://github.com/Homebrew/legacy-homebrew/issues/29733)
+    export PATH=$(brew --prefix ${FORMULA:-llvm@$LLVM_VERSION})/bin:$PATH
+    ln -s $(brew --prefix ${FORMULA:-llvm@$LLVM_VERSION})/bin/llvm-config-$LLVM_VERSION /usr/local/bin/llvm-config
 
     # FIXME: the "libclang.dylib" shared object is manually added to the ld
     #        library path since the llvm the formula don't do it properly
