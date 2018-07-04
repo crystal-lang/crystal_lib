@@ -116,6 +116,15 @@ describe LibBodyTransformer do
     )
 
   assert_transform "simple",
+    "fun just_some_enum_4", %(
+      enum SomeEnum4 : Int64
+        V = 456_i64
+        W = 4294967296_i64
+      end
+      fun just_some_enum_4 : SomeEnum4
+    )
+
+  assert_transform "simple",
     "fun just_some_enum_3", %(
       enum SomeEnum3
         NodePara = 1

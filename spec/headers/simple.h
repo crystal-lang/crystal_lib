@@ -56,6 +56,12 @@ enum some_enum_3 {
 };
 enum some_enum_3 just_some_enum_3();
 
+enum some_enum_4 {
+  v = 456,
+  w = 4294967296
+};
+enum some_enum_4 just_some_enum_4();
+
 enum {
   SOCK_STREAM = 1,
   #define SOCK_STREAM SOCK_STREAM
