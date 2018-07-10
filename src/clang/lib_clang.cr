@@ -1,11 +1,13 @@
 require "./enums"
 
 @[Link("clang")]
-{% if flag?(:darwin) %}
+{% if env("LLVM_CONFIG") %}
+  @[Link(ldflags: "`{{env("LLVM_CONFIG").id}} --ldflags 2>/dev/null`")]
+{% elsif flag?(:darwin) %}
   @[Link(ldflags: "-L`xcode-select --print-path`/usr/lib")]
   @[Link(ldflags: "-rpath `xcode-select --print-path`/usr/lib")]
 {% else %}
-  @[Link(ldflags: "`llvm-config-3.6 --ldflags 2>/dev/null || llvm-config-3.5 --ldflags 2>/dev/null || llvm-config --ldflags 2>/dev/null`")]
+  @[Link(ldflags: "`llvm-config --ldflags 2>/dev/null`")]
 {% end %}
 lib LibClang
   type Index = Void*
