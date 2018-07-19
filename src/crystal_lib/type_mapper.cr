@@ -127,10 +127,34 @@ class CrystalLib::TypeMapper
 
   def map_internal(type : CrystalLib::Enum)
     enum_name = crystal_type_name(check_anonymous_name(type.name))
-    enum_members = type.values.map do |value|
-      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(value.value)).as(Crystal::ASTNode)
+
+    # try to find out the type of the enum
+    # (see https://stackoverflow.com/a/1113869)
+    if type.values.all? { |v| Int32::MIN <= v.value <= Int32::MAX }
+      base_type = Int32
+    else # default type
+      base_type = Int64
     end
-    enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members)
+
+    enum_members = type.values.map do |value|
+      val = value.value
+      if base_type == Int32 && !val.is_a?(Int32)
+        val = val.to_i32
+      elsif base_type == Int64 && !val.is_a?(Int64)
+        val = val.to_i64
+      end
+
+      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(val)).as(Crystal::ASTNode)
+    end
+
+    # default type of crystal enum: keep it implicit
+    if base_type == Int32
+      base_type = nil
+    else
+      base_type = path(base_type.to_s)
+    end
+
+    enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members, base_type: base_type)
     @pending_definitions << enum_def
     path(enum_name)
   end

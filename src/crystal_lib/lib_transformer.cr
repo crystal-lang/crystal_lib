@@ -1,11 +1,11 @@
 class CrystalLib::LibTransformer < Crystal::Transformer
   def initialize
-    @includes = [] of Crystal::Attribute
+    @includes = [] of Crystal::Annotation
   end
 
-  def transform(node : Crystal::Attribute)
-    case node.name
-    when "Include"
+  def transform(node : Crystal::Annotation)
+    case node.path.names
+    when ["Include"]
       @includes << node
       Crystal::Nop.new
     else
