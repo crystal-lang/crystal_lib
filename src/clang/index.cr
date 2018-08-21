@@ -45,7 +45,7 @@ class Clang::Index
       elsif found_include
         line = line.lstrip
         break unless line.starts_with?('.') || line.starts_with?('/')
-        include_dirs << line.chomp
+        include_dirs << line.chomp.gsub(/ \([^)]+\)$/, "")
       end
     end
 
