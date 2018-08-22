@@ -113,7 +113,8 @@ class CrystalLib::TypeMapper
 
   def map_internal(type : ConstantArrayType)
     element_type = map_non_recursive(type.type)
-    generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(type.size)] of Crystal::ASTNode)
+    size = (type.size < Int32::MAX ? type.size.to_i32 : type.size)
+    generic(path("StaticArray"), [element_type, Crystal::NumberLiteral.new(size)] of Crystal::ASTNode)
   end
 
   def map_internal(type : IncompleteArrayType)

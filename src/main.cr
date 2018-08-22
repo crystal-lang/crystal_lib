@@ -1,4 +1,3 @@
-require "./clang"
 require "./crystal_lib"
 
 node = Crystal::Parser.parse(ARGF.gets_to_end)
