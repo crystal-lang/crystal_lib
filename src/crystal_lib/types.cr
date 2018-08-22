@@ -162,4 +162,7 @@ module CrystalLib
       node.name.hash
     end
   end
+
+  class VaListType < Type
+  end
 end

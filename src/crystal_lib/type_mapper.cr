@@ -54,8 +54,7 @@ class CrystalLib::TypeMapper
          PrimitiveType::Kind::Float,
          PrimitiveType::Kind::Double,
          PrimitiveType::Kind::LongDouble,
-         PrimitiveType::Kind::WChar,
-         PrimitiveType::Kind::VaList
+         PrimitiveType::Kind::WChar
       path ["LibC", type.kind.to_s]
     else
       raise "Unsupported primitive kind: #{type.kind}"
@@ -181,6 +180,10 @@ class CrystalLib::TypeMapper
 
   def map_internal(type : UnexposedType)
     path("Void")
+  end
+
+  def map_internal(type : VaListType)
+    path ["LibC", "VaList"]
   end
 
   def map_internal(type : ErrorType)

@@ -222,10 +222,9 @@ class CrystalLib::Parser
       incomplete_array_type(type(type.array_element_type))
     when Clang::TypeKind::Typedef
       spelling = type.spelling
-      spelling = spelling.gsub("const ", "")
-        .gsub("volatile ", "")
+      spelling = spelling.gsub("const ", "").gsub("volatile ", "")
       if !named_types.has_key?(spelling) && spelling == "__builtin_va_list"
-        primitive_type(PrimitiveType::Kind::VaList)
+        VaListType.new
       else
         named_types[spelling]? || error_type(spelling)
       end
