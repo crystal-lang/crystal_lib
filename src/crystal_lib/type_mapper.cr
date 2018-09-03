@@ -165,7 +165,7 @@ class CrystalLib::TypeMapper
 
     if type.fields.empty?
       # For an empty struct we just return an alias to Void
-      struct_def = Crystal::Alias.new(struct_name, path(["Void"]))
+      struct_def = Crystal::Alias.new(path(struct_name), path(["Void"]))
     else
       struct_def = Crystal::CStructOrUnionDef.new(struct_name, union: type.kind == :union)
 
@@ -229,7 +229,7 @@ class CrystalLib::TypeMapper
 
   def declare_alias(name, type)
     crystal_name = crystal_type_name(name)
-    @pending_definitions << Crystal::Alias.new(crystal_name, type)
+    @pending_definitions << Crystal::Alias.new(path(crystal_name), type)
     path(crystal_name)
   end
 
