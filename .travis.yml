@@ -14,13 +14,13 @@ matrix:
     env: LLVM_VERSION=3.9
   - os: osx
     osx_image: xcode8.3
-    env: LLVM_VERSION=4
+    env: LLVM_VERSION=4.0
   - os: osx
     osx_image: xcode8.3
-    env: LLVM_VERSION=5
+    env: LLVM_VERSION=5.0
   - os: osx
     osx_image: xcode8.3
-    env: LLVM_VERSION=6
+    env: LLVM_VERSION=6.0
 
 
 before_install: |
@@ -30,7 +30,7 @@ before_install: |
   case $TRAVIS_OS_NAME in
   linux)
     sudo apt-get -qq update
-    sudo apt-get install -y llvm-${LLVM_VERSION}-dev libclang-${LLVM_VERSION}-dev
+    sudo apt-get install -y llvm-${LLVM_VERSION}-dev libclang-${LLVM_VERSION}-dev clang-${LLVM_VERSION}
 
     # FIXME: several ugly fixes since the Travis CI image is shipped
     #        with a pre-configured version of LLVM:
@@ -45,9 +45,12 @@ before_install: |
     ;;
 
   osx)
+    LLVM_MAJOR_VERSION=${LLVM_VERSION:0:1}
+    [ $LLVM_MAJOR_VERSION -ge 4 ] && FORMULA_VERSION=$LLVM_MAJOR_VERSION || FORMULA_VERSION=$LLVM_VERSION
+
     brew update
-    brew install ${FORMULA:-llvm@$LLVM_VERSION}
-    brew link --force --overwrite ${FORMULA:-llvm@$LLVM_VERSION}
+    brew install llvm@$FORMULA_VERSION
+    brew link --force --overwrite llvm@$FORMULA_VERSION
 
     # FIXME: the "libclang.dylib" shared object is manually added to the ld
     #        library path since the llvm the formula don't do it properly
@@ -57,5 +60,9 @@ before_install: |
   *)
     exit 1;;
   esac
+
+  # ensure the right version of clang is used by the binding
+  export CC=clang-${LLVM_VERSION}
+  $CC --version
 
   set +x
