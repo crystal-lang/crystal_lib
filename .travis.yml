@@ -21,6 +21,9 @@ matrix:
   - os: osx
     osx_image: xcode8.3
     env: LLVM_VERSION=6.0
+  - os: osx
+    osx_image: xcode8.3
+    env: LLVM_VERSION=7.0
 
 
 before_install: |
@@ -62,7 +65,7 @@ before_install: |
   esac
 
   # ensure the right version of clang is used by the binding
-  export CC=clang-${LLVM_VERSION}
+  export CC=$(command -v clang-${LLVM_VERSION} || command -v clang-${LLVM_MAJOR_VERSION})
   $CC --version
 
   set +x
