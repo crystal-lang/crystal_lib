@@ -1,0 +1,15 @@
+---
+name: crystal_lib
+version: 0.1.0
+description: |
+  Automatic binding generator for native libraries in Crystal
+
+crystal: 0.26.0
+
+dependencies:
+  clang:
+    github: crystal-lang/clang.cr
+    branch: master
+
+libraries:
+  libClang: "*"

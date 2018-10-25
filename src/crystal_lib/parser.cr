@@ -1,3 +1,6 @@
+require "clang"
+require "clang/clang-c/Index"
+
 class CrystalLib::Parser
   getter nodes
 
@@ -15,7 +18,13 @@ class CrystalLib::Parser
     @nodes = [] of ASTNode
     @cursor_hash_to_node = {} of UInt32 => ASTNode
     @idx = Clang::Index.new
-    @tu = @idx.parse_translation_unit "input.c", args: flags, unsaved_files: [Clang::UnsavedFile.new("input.c", source)]
+    Clang.default_c_include_directories(flags)
+    @tu = Clang::TranslationUnit.from_source(
+      @idx,
+      [Clang::UnsavedFile.new("input.c", source)],
+      flags,
+      Clang::TranslationUnit.default_options
+    )
   end
 
   def parse
@@ -23,9 +32,9 @@ class CrystalLib::Parser
       node = visit(cursor)
       if node
         @nodes << node
-        Clang::VisitResult::Continue
+        Clang::ChildVisitResult::Continue
       else
-        Clang::VisitResult::Recurse
+        Clang::ChildVisitResult::Recurse
       end
     end
   end
@@ -60,13 +69,12 @@ class CrystalLib::Parser
 
   def macro_definition_value(cursor)
     value = String.build do |str|
-      tokens = @tu.tokenize(cursor.extent)
       first = true
       old_line = nil
-      tokens.each do |token|
+      @tu.tokenize(cursor.extent) do |token|
         # Sometimes the tokenizations goes beyond one line (bug in clang?),
         # so we only get the define's value of a single line
-        line = token.location.file_location.line
+        line = token.location.file_location[1]
         break if old_line != nil && old_line != line
         old_line = line
 
@@ -76,14 +84,14 @@ class CrystalLib::Parser
         end
 
         case token.kind
-        when Clang::Token::Kind::Literal
+        when LibC::CXTokenKind::Literal
           str << token.spelling
-        when Clang::Token::Kind::Punctuation
+        when LibC::CXTokenKind::Punctuation
           spelling = token.spelling
           break if spelling == "#"
           str << spelling
-        when Clang::Token::Kind::Identifier,
-             Clang::Token::Kind::Keyword
+        when LibC::CXTokenKind::Identifier,
+             LibC::CXTokenKind::Keyword
           spelling = token.spelling
           str << spelling
         else
@@ -109,7 +117,7 @@ class CrystalLib::Parser
 
   def visit_typedef_declaration(cursor)
     name = cursor.spelling
-    type = type(cursor.typedef_underlying_type)
+    type = type(cursor.typedef_decl_underlying_type)
     named_types[name] = TypedefType.new(name, type)
     Typedef.new(name, type)
   end
@@ -122,11 +130,11 @@ class CrystalLib::Parser
     function = Function.new(name, return_type, variadic)
 
     cursor.visit_children do |subcursor|
-      if subcursor.kind == Clang::Cursor::Kind::ParmDecl
+      if subcursor.kind == Clang::CursorKind::ParmDecl
         function.args << visit_param_declaration(subcursor)
       end
 
-      Clang::VisitResult::Continue
+      Clang::ChildVisitResult::Continue
     end
 
     function
@@ -149,14 +157,14 @@ class CrystalLib::Parser
     @cursor_hash_to_node[cursor.hash] = struct_or_union
 
     cursor.visit_children do |subcursor|
-      if subcursor.kind == Clang::Cursor::Kind::FieldDecl
+      if subcursor.kind == Clang::CursorKind::FieldDecl
         var = visit_var_declaration(subcursor)
         unless struct_or_union.fields.any? { |v| v.name == var.name }
           struct_or_union.fields << var
         end
       end
 
-      Clang::VisitResult::Continue
+      Clang::ChildVisitResult::Continue
     end
 
     struct_or_union
@@ -165,24 +173,24 @@ class CrystalLib::Parser
   def visit_enum_declaration(cursor)
     name = name(cursor)
 
-    type = type(cursor.enum_integer_type)
+    type = type(cursor.enum_decl_integer_type)
     enum_decl = Enum.new(name, type)
 
     @cursor_hash_to_node[cursor.hash] = enum_decl
 
     cursor.visit_children do |subcursor|
-      if subcursor.kind == Clang::Cursor::Kind::EnumConstantDecl
+      if subcursor.kind == Clang::CursorKind::EnumConstantDecl
         enum_decl.values << visit_enum_constant_declaration(subcursor)
       end
 
-      Clang::VisitResult::Continue
+      Clang::ChildVisitResult::Continue
     end
 
     enum_decl
   end
 
   def visit_enum_constant_declaration(cursor)
-    EnumValue.new(cursor.spelling, cursor.enum_value)
+    EnumValue.new(cursor.spelling, cursor.enum_constant_decl_value)
   end
 
   def name(cursor)
@@ -193,36 +201,35 @@ class CrystalLib::Parser
 
   def type(type)
     case type.kind
-    when Clang::Type::Kind::Pointer
+    when Clang::TypeKind::Pointer
       pointee_type = type.pointee_type
 
       # Check the case of a function pointer type. I couldn't find another one to do this
       # other than checking the result type, and if it's not invalid it means it's a function
       result_type = pointee_type.result_type
-      if result_type.kind != Clang::Type::Kind::Invalid
+      if result_type.kind != Clang::TypeKind::Invalid
         return build_function_type(pointee_type, result_type)
       end
 
       pointer_type(type(pointee_type))
-    when Clang::Type::Kind::FunctionProto
+    when Clang::TypeKind::FunctionProto
       build_function_type type
-    when Clang::Type::Kind::BlockPointer
+    when Clang::TypeKind::BlockPointer
       block_pointer_type(type(type.pointee_type))
-    when Clang::Type::Kind::ConstantArray
+    when Clang::TypeKind::ConstantArray
       constant_array_type(type(type.array_element_type), type.array_size)
-    when Clang::Type::Kind::IncompleteArray
+    when Clang::TypeKind::IncompleteArray
       incomplete_array_type(type(type.array_element_type))
-    when Clang::Type::Kind::Typedef
+    when Clang::TypeKind::Typedef
       spelling = type.spelling
-      spelling = spelling.gsub("const ", "")
-                         .gsub("volatile ", "")
+      spelling = spelling.gsub("const ", "").gsub("volatile ", "")
       if !named_types.has_key?(spelling) && spelling == "__builtin_va_list"
-        primitive_type(PrimitiveType::Kind::VaList)
+        VaListType.new
       else
         named_types[spelling]? || error_type(spelling)
       end
-    when Clang::Type::Kind::Unexposed,
-         Clang::Type::Kind::Elaborated
+    when Clang::TypeKind::Unexposed,
+         Clang::TypeKind::Elaborated
       existing = @cursor_hash_to_node[type.cursor.hash]?
       if existing
         NodeRef.new(existing)
@@ -239,27 +246,27 @@ class CrystalLib::Parser
           UnexposedType.new(type.cursor.spelling)
         end
       end
-    when Clang::Type::Kind::Void,
-         Clang::Type::Kind::Bool,
-         Clang::Type::Kind::Char_S,
-         Clang::Type::Kind::SChar,
-         Clang::Type::Kind::UChar,
-         Clang::Type::Kind::Int,
-         Clang::Type::Kind::Short,
-         Clang::Type::Kind::Long,
-         Clang::Type::Kind::LongLong,
-         Clang::Type::Kind::UInt,
-         Clang::Type::Kind::UShort,
-         Clang::Type::Kind::ULong,
-         Clang::Type::Kind::ULongLong,
-         Clang::Type::Kind::Float,
-         Clang::Type::Kind::Double,
-         Clang::Type::Kind::LongDouble,
-         Clang::Type::Kind::WChar
+    when Clang::TypeKind::Void,
+         Clang::TypeKind::Bool,
+         Clang::TypeKind::Char_S,
+         Clang::TypeKind::SChar,
+         Clang::TypeKind::UChar,
+         Clang::TypeKind::Int,
+         Clang::TypeKind::Short,
+         Clang::TypeKind::Long,
+         Clang::TypeKind::LongLong,
+         Clang::TypeKind::UInt,
+         Clang::TypeKind::UShort,
+         Clang::TypeKind::ULong,
+         Clang::TypeKind::ULongLong,
+         Clang::TypeKind::Float,
+         Clang::TypeKind::Double,
+         Clang::TypeKind::LongDouble,
+         Clang::TypeKind::WChar
       primitive_type(type.kind)
-    when Clang::Type::Kind::Record,
-         Clang::Type::Kind::Dependent,
-         Clang::Type::Kind::Auto
+    when Clang::TypeKind::Record,
+         Clang::TypeKind::Dependent,
+         Clang::TypeKind::Auto
       # Skip these for now. If they are needed we'll analyze them at that time
       error_type(type.spelling)
     else
@@ -268,7 +275,7 @@ class CrystalLib::Parser
   end
 
   def build_function_type(type, result_type = type.result_type)
-    arg_types = Array(Type).new(type.num_arg_types) { |index| type(type.arg_type(index)) }
+    arg_types = type.arguments.map { |v| type(v).as(Type) }
     function_type(arg_types, type(result_type))
   end
 
@@ -293,7 +300,7 @@ class CrystalLib::Parser
   end
 
   record ConstantArrayKey,
-    object_id : UInt64, size : Int32
+    object_id : UInt64, size : Int64
 
   def constant_array_types
     @constant_array_types ||= {} of ConstantArrayKey => Type
@@ -329,7 +336,7 @@ class CrystalLib::Parser
   end
 
   def constant_array_type(type, size)
-    constant_array_types[ConstantArrayKey.new(type.object_id, size)] ||= ConstantArrayType.new(type, size)
+    constant_array_types[ConstantArrayKey.new(type.hash, size)] ||= ConstantArrayType.new(type, size)
   end
 
   def incomplete_array_type(type)
@@ -337,7 +344,7 @@ class CrystalLib::Parser
   end
 
   def function_type(inputs, output)
-    function_types[FunctionKey.new(inputs.map(&.object_id), output.object_id)] ||= FunctionType.new(inputs, output)
+    function_types[FunctionKey.new(inputs.map(&.hash), output.hash)] ||= FunctionType.new(inputs, output)
   end
 
   def error_type(name)
