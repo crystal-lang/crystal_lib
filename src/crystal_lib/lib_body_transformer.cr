@@ -16,6 +16,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
     raise "can't find function #{name}" unless func.is_a?(CrystalLib::Function)
 
+    node.doc = func.doc
+
     node.args = func.args.map_with_index do |arg, i|
       Crystal::Arg.new(arg.name.empty? ? "x#{i}" : @mapper.crystal_arg_name(arg.name), restriction: map_type(arg.type))
     end
@@ -47,6 +49,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
       value = "0o#{value[1..-1]}"
     end
 
+    node.doc = match.doc
+
     begin
       node.value = Crystal::Parser.parse(value)
     rescue ex : Crystal::Exception
@@ -70,6 +74,8 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
     match = find_node(name)
     raise "can't find variable #{name}" unless match.is_a?(CrystalLib::Var)
+
+    node.doc = match.doc
 
     node.type_spec = map_type(match.type)
     check_pending_definitions(node)

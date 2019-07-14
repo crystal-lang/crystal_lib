@@ -248,5 +248,57 @@ describe Parser do
       var.name.should eq("tester")
       var.type.should eq(FunctionType.new([PrimitiveType.float, PrimitiveType.char] of Type, PrimitiveType.int))
     end
+
+    it "parses single line brief comments" do
+      source = <<-EOS
+        /// some comment
+        ///
+        /// some other comment
+        int some_func(float x);
+      EOS
+      nodes = parse(source, options: Parser::Option::ImportBriefComments)
+      var = nodes.last.as(Function)
+      var.doc.should eq("some comment")
+    end
+
+    it "parses single line full comments" do
+      source = <<-EOS
+        //! some comment
+        //!
+        //! some other comment
+        int some_func(float x);
+      EOS
+      nodes = parse(source, options: Parser::Option::ImportFullComments)
+      var = nodes.last.as(Function)
+      var.doc.should eq("some comment\n\nsome other comment")
+    end
+
+    it "parses javadoc line brief comments" do
+      source = <<-EOS
+        /**
+           some comment
+
+           some other comment
+         */
+        int some_func(float x);
+      EOS
+      nodes = parse(source, options: Parser::Option::ImportBriefComments)
+      var = nodes.last.as(Function)
+      var.doc.should eq("some comment")
+    end
+
+    it "parses single line full comments" do
+      source = <<-EOS
+        /*!
+         * some comment
+         *
+         * some other comment
+         */
+        int some_func(float x);
+      EOS
+      nodes = parse(source, options: Parser::Option::ImportFullComments)
+      var = nodes.last.as(Function)
+      var.doc.should eq("some comment\n\nsome other comment")
+    end
   end
 end

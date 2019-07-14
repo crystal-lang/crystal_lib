@@ -4,8 +4,14 @@ require "clang/clang-c/Index"
 class CrystalLib::Parser
   getter nodes
 
-  def self.parse(source, flags = [] of String)
-    parser = Parser.new(source, flags)
+  @[Flags]
+  enum Option
+    ImportBriefComments
+    ImportFullComments
+  end
+
+  def self.parse(source, flags = [] of String, options = Option::None)
+    parser = Parser.new(source, flags, options)
     parser.parse
     nodes = parser.nodes
     # puts nodes.map(&.to_s).join("\n")
@@ -14,7 +20,7 @@ class CrystalLib::Parser
 
   @tu : Clang::TranslationUnit
 
-  def initialize(@source : String, flags = [] of String)
+  def initialize(@source : String, flags = [] of String, @options = Option::None)
     @nodes = [] of ASTNode
     @cursor_hash_to_node = {} of UInt32 => ASTNode
     @idx = Clang::Index.new
@@ -23,7 +29,8 @@ class CrystalLib::Parser
       @idx,
       [Clang::UnsavedFile.new("input.c", source)],
       flags,
-      Clang::TranslationUnit.default_options
+      Clang::TranslationUnit.default_options |
+      Clang::TranslationUnit::Options::IncludeBriefCommentsInCodeCompletion
     )
   end
 
@@ -31,11 +38,29 @@ class CrystalLib::Parser
     @tu.cursor.visit_children do |cursor|
       node = visit(cursor)
       if node
+        node.doc = generate_comments(cursor)
         @nodes << node
         Clang::ChildVisitResult::Continue
       else
         Clang::ChildVisitResult::Recurse
       end
+    end
+  end
+
+  def generate_comments(cursor)
+    if @options.import_full_comments?
+      cursor.raw_comment_text.try do |comment|
+        # Convert Doxygen comments
+        # (see http://www.doxygen.nl/manual/docblocks.html)
+        comment.gsub(Regex.union(
+          /\/\*[\*!]\h*/m,     # Javadoc/Qt style comment block opening
+          /\s*\*\/\Z/,         # Javadoc/Qt style comment block closing
+          /^\s*\*\h*/m,        # Javadoc/Qt style inner block prefix
+          /^\s*\/\/[\/!]\h*/m, # Single line comment block
+        ), "").strip
+      end
+    elsif @options.import_brief_comments?
+      cursor.brief_comment_text
     end
   end
 
@@ -112,7 +137,7 @@ class CrystalLib::Parser
   def visit_param_declaration(cursor)
     name = name(cursor)
     type = type(cursor.type)
-    Arg.new(name, type)
+    Arg.new(name, type).tap(&.doc = generate_comments(cursor))
   end
 
   def visit_typedef_declaration(cursor)
@@ -160,7 +185,7 @@ class CrystalLib::Parser
       if subcursor.kind == Clang::CursorKind::FieldDecl
         var = visit_var_declaration(subcursor)
         unless struct_or_union.fields.any? { |v| v.name == var.name }
-          struct_or_union.fields << var
+          struct_or_union.fields << var.tap(&.doc = generate_comments(subcursor))
         end
       end
 
@@ -190,7 +215,7 @@ class CrystalLib::Parser
   end
 
   def visit_enum_constant_declaration(cursor)
-    EnumValue.new(cursor.spelling, cursor.enum_constant_decl_value)
+    EnumValue.new(cursor.spelling, cursor.enum_constant_decl_value).tap(&.doc = generate_comments(cursor))
   end
 
   def name(cursor)

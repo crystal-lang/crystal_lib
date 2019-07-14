@@ -144,7 +144,7 @@ class CrystalLib::TypeMapper
         val = val.to_i64
       end
 
-      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(val)).as(Crystal::ASTNode)
+      Crystal::Arg.new(crystal_type_name(value.name), default_value: Crystal::NumberLiteral.new(val)).tap(&.doc = value.doc).as(Crystal::ASTNode)
     end
 
     # default type of crystal enum: keep it implicit
@@ -154,7 +154,7 @@ class CrystalLib::TypeMapper
       base_type = path(base_type.to_s)
     end
 
-    enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members, base_type: base_type)
+    enum_def = Crystal::EnumDef.new(path([enum_name]), enum_members, base_type: base_type).tap(&.doc = type.doc)
     @pending_definitions << enum_def
     path(enum_name)
   end
@@ -165,9 +165,9 @@ class CrystalLib::TypeMapper
 
     if type.fields.empty?
       # For an empty struct we just return an alias to Void
-      struct_def = Crystal::Alias.new(path(struct_name), path(["Void"]))
+      struct_def = Crystal::Alias.new(path(struct_name), path(["Void"])).tap(&.doc = type.doc)
     else
-      struct_def = Crystal::CStructOrUnionDef.new(struct_name, union: type.kind == :union)
+      struct_def = Crystal::CStructOrUnionDef.new(struct_name, union: type.kind == :union).tap(&.doc = type.doc)
 
       # Leave struct body for later, because of possible recursiveness
       @pending_structs << PendingStruct.new(struct_def, type, untouched_struct_name)
@@ -233,13 +233,13 @@ class CrystalLib::TypeMapper
 
   def declare_alias(name, type)
     crystal_name = crystal_type_name(name)
-    @pending_definitions << Crystal::Alias.new(path(crystal_name), type)
+    @pending_definitions << Crystal::Alias.new(path(crystal_name), type).tap(&.doc = type.doc)
     path(crystal_name)
   end
 
   def declare_typedef(name, type)
     crystal_name = crystal_type_name(name)
-    @pending_definitions << Crystal::TypeDef.new(crystal_name, type)
+    @pending_definitions << Crystal::TypeDef.new(crystal_name, type).tap(&.doc = type.doc)
     path(crystal_name)
   end
 
@@ -247,7 +247,7 @@ class CrystalLib::TypeMapper
     while pending_struct = @pending_structs.pop?
       fields = pending_struct.clang_type.fields.map do |field|
         @structs_stack.push({pending_struct, field.name})
-        arg = Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)).as(Crystal::ASTNode)
+        arg = Crystal::Arg.new(crystal_field_name(field.name), restriction: map(field.type)).tap(&.doc = field.doc).as(Crystal::ASTNode)
         @structs_stack.pop
         arg
       end
