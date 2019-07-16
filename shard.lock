@@ -2,5 +2,5 @@ version: 1.0
 shards:
   clang:
     github: crystal-lang/clang.cr
-    commit: 1e1003c76d1c37ba123a248757592f65ed8a8c29
+    commit: d019b9ff105cd652f31cca73e950adbf41037d52
 
