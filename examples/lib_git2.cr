@@ -1,7 +1,8 @@
 @[Include(
   "git2.h",
-  "git2/global.h",
-  prefix: %w(git_ GIT_ Git))]
+  prefix: %w(git_ GIT_ Git),
+  import_docstrings: "brief",
+)]
 @[Link("git2")]
 lib LibGit2
 end
