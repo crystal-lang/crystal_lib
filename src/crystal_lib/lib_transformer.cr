@@ -14,8 +14,8 @@ class CrystalLib::LibTransformer < Crystal::Transformer
   end
 
   def transform(node : Crystal::LibDef)
-    headers, flags, prefixes, remove_prefix = process_includes
-    nodes = CrystalLib::Parser.parse(headers, flags)
+    headers, flags, prefixes, remove_prefix, options = process_includes
+    nodes = CrystalLib::Parser.parse(headers, flags, options)
 
     if prefixes.empty?
       node.body = node.body.transform CrystalLib::LibBodyTransformer.new(nodes)
@@ -30,6 +30,7 @@ class CrystalLib::LibTransformer < Crystal::Transformer
   def process_includes
     headers = IO::Memory.new
     flags = [] of String
+    options = CrystalLib::Parser::Option::None
     prefixes = [] of String
     remove_prefix = true
 
@@ -77,12 +78,28 @@ class CrystalLib::LibTransformer < Crystal::Transformer
           else
             raise "Include remove_prefix value must be a bool literal, at #{value.location}"
           end
+        when "import_docstrings"
+          value = named_arg.value
+          case value
+          when Crystal::StringLiteral, Crystal::BoolLiteral
+            case value.value
+            when "brief"
+              options |= CrystalLib::Parser::Option::ImportBriefComments
+            when "full", true
+              options |= CrystalLib::Parser::Option::ImportFullComments
+            when "none", false
+            else
+              raise "Include import_docstrings value must be \"brief\", \"full\", \"none\", true or false at #{value.location}"
+            end
+          else
+            raise "Include comments value must be a string or bool literal, at #{value.location}"
+          end
         else
           raise "unknown named argument for Include attribtue, at #{named_arg.location}"
         end
       end
     end
 
-    {headers.to_s, flags, prefixes, remove_prefix}
+    {headers.to_s, flags, prefixes, remove_prefix, options}
   end
 end

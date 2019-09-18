@@ -25,14 +25,14 @@ class CrystalLib::PrefixImporter
     end
 
     name = Crystal::Path.new(name.upcase)
-    @nodes << Crystal::Assign.new(name, value)
+    @nodes << Crystal::Assign.new(name, value).tap(&.doc = node.doc)
   end
 
   def process(node : Var)
     name = match_prefix(node)
     return unless name
 
-    @nodes << Crystal::ExternalVar.new(name, @mapper.map(node.type))
+    @nodes << Crystal::ExternalVar.new(name, @mapper.map(node.type)).tap(&.doc = node.doc)
 
     check_pending_definitions
   end
@@ -50,7 +50,7 @@ class CrystalLib::PrefixImporter
 
     varargs = node.variadic?
 
-    @nodes << Crystal::FunDef.new(name, args, return_type, varargs, real_name: node.name)
+    @nodes << Crystal::FunDef.new(name, args, return_type, varargs, real_name: node.name).tap(&.doc = node.doc)
 
     check_pending_definitions
   end
@@ -61,7 +61,7 @@ class CrystalLib::PrefixImporter
         name = match_prefix(value)
         next unless name
 
-        @nodes << Crystal::Assign.new(Crystal::Path.new(@mapper.crystal_type_name(name)), Crystal::NumberLiteral.new(value.value))
+        @nodes << Crystal::Assign.new(Crystal::Path.new(@mapper.crystal_type_name(name)), Crystal::NumberLiteral.new(value.value)).tap(&.doc = value.doc)
       end
     end
   end
