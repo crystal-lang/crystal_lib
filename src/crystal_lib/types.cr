@@ -97,7 +97,11 @@ module CrystalLib
     end
 
     def to_s(io)
-      @inputs.join(", ", io)
+      {% if compare_versions(Crystal::VERSION, "0.35.0-0") >= 0 %}
+        @inputs.join(io, ", ")
+      {% else %}
+        @inputs.join(", ", io)
+      {% end %}
       io << " -> " << @output
     end
 
