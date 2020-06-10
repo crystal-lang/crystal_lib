@@ -49,7 +49,11 @@ module CrystalLib
     def to_s(io, semicolon = true)
       io << @return_type << " " << @name
       io << "("
-      @args.join(", ", io)
+      {% if compare_versions(Crystal::VERSION, "0.35.0-0") >= 0 %}
+        @args.join(io, ", ")
+      {% else %}
+        @args.join(", ", io)
+      {% end %}
       if @variadic
         io << ", " unless @args.empty?
         io << "..."
