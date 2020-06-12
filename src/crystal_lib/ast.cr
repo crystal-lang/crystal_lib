@@ -49,7 +49,7 @@ module CrystalLib
     def to_s(io, semicolon = true)
       io << @return_type << " " << @name
       io << "("
-      @args.join(", ", io)
+      @args.join(io, ", ")
       if @variadic
         io << ", " unless @args.empty?
         io << "..."

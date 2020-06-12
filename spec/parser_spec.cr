@@ -116,6 +116,15 @@ describe Parser do
     fields.size.should eq(2)
   end
 
+  it "parses an anonymous union inside a function definition" do
+    nodes = parse("void func(union{ char x; int y; });")
+    type = nodes[-2].as(StructOrUnion)
+    type.kind.should eq(:union)
+    type.name.should eq("")
+    fields = type.fields
+    fields.size.should eq(2)
+  end
+
   it "parses struct with nested struct" do
     nodes = parse("struct point { struct { int x; int y; } nested; };")
     type = nodes.last.as(StructOrUnion)

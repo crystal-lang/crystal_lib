@@ -97,7 +97,7 @@ module CrystalLib
     end
 
     def to_s(io)
-      @inputs.join(", ", io)
+      @inputs.join(io, ", ")
       io << " -> " << @output
     end
 
