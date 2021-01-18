@@ -4,7 +4,7 @@ version: 0.1.0
 description: |
   Automatic binding generator for native libraries in Crystal
 
-crystal: 0.26.0
+crystal: 0.36.0
 
 dependencies:
   clang:

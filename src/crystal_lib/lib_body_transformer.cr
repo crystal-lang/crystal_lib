@@ -53,7 +53,7 @@ class CrystalLib::LibBodyTransformer < Crystal::Transformer
 
     begin
       node.value = Crystal::Parser.parse(value)
-    rescue ex : Crystal::Exception
+    rescue ex : Crystal::CodeError
       raise "can't parse value of constant #{name}: #{value}"
     end
     node
