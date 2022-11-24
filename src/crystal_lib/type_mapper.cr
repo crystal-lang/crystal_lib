@@ -42,8 +42,13 @@ class CrystalLib::TypeMapper
       path ["LibC", "Char"]
     when .u_char?
       path ["UInt8"]
-    when PrimitiveType::Kind::Bool,
-         PrimitiveType::Kind::Int,
+    when .bool?
+      {% if flag?(:windows) %}
+        path ["LibC", "BOOL"]
+      {% else %}
+        path ["LibC", "Int"]
+      {% end %}
+    when PrimitiveType::Kind::Int,
          PrimitiveType::Kind::Short,
          PrimitiveType::Kind::Long,
          PrimitiveType::Kind::LongLong,
